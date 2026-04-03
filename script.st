@@ -1,4 +1,6 @@
 function main() {
-    var test = entity(1)
-    world.send(test.send_return())
+    var test = 0;
+    world.time(6) {
+        world.send("test",test)
+    }
 }
