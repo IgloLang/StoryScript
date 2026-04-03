@@ -168,6 +168,11 @@ class Lexer(private val input: String) {
                 column += 2
                 Token(TokenType.DECREMENT, "--", line, startCol)
             }
+            c == '*' && peek() == '*' && position + 2 < input.length && input[position + 2] == '=' -> {
+                position += 3
+                column += 3
+                Token(TokenType.POWER_ASSIGN, "**=", line, startCol)
+            }
             c == '*' && peek() == '*' -> {
                 position += 2
                 column += 2
@@ -242,11 +247,6 @@ class Lexer(private val input: String) {
                 position += 2
                 column += 2
                 Token(TokenType.PERCENT_ASSIGN, "%=", line, startCol)
-            }
-            c == '*' && peek() == '*' && position + 2 < input.length && input[position + 2] == '=' -> {
-                position += 3
-                column += 3
-                Token(TokenType.POWER_ASSIGN, "**=", line, startCol)
             }
             c == '+' -> {
                 position++

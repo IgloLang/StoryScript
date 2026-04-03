@@ -472,6 +472,105 @@ Count: 1
 Count: 2
 ```
 
+### Пример 7: Составные операторы присваивания
+
+```kotlin
+function main() {
+    var x = 100
+    world.send("Начальное значение: " + x)
+    
+    x += 25
+    world.send("После x += 25: " + x)
+    
+    x -= 10
+    world.send("После x -= 10: " + x)
+    
+    x *= 2
+    world.send("После x *= 2: " + x)
+    
+    x /= 5
+    world.send("После x /= 5: " + x)
+}
+```
+
+**Результат:**
+```
+Начальное значение: 100
+После x += 25: 125
+После x -= 10: 115
+После x *= 2: 230
+После x /= 5: 46
+```
+
+### Пример 8: Тернарный оператор
+
+```kotlin
+function main() {
+    var scores = 75
+    
+    // Простой тернарный оператор
+    var result = scores >= 60 ? "Passed" : "Failed"
+    world.send("Result: " + result)
+    
+    // Вложенные тернарные операторы
+    var grade = scores >= 90 ? "A" :
+                scores >= 80 ? "B" :
+                scores >= 70 ? "C" :
+                scores >= 60 ? "D" : "F"
+    
+    world.send("Grade: " + grade)
+    
+    // Определение уровня сложности
+    var level = 25
+    var difficulty = level <= 10 ? "Easy" :
+                     level <= 50 ? "Medium" :
+                     level <= 100 ? "Hard" : "Extreme"
+    
+    world.send("Difficulty: " + difficulty)
+}
+```
+
+**Результат:**
+```
+Result: Passed
+Grade: C
+Difficulty: Medium
+```
+
+### Пример 9: Комбинация новых операторов
+
+```kotlin
+function main() {
+    var hp = 100
+    var damage = 0
+    
+    // Получение урона с использованием составного оператора
+    damage += 25
+    hp -= damage
+    
+    world.send("After damage: HP = " + hp)
+    
+    // Определение статуса с использованием тернарного оператора
+    var status = hp > 50 ? "Healthy" :
+                 hp > 25 ? "Wounded" : "Critical"
+    
+    world.send("Status: " + status)
+    
+    // Использование тернарного оператора в составном присваивании
+    var multiplier = status == "Healthy" ? 1 : 2
+    hp *= multiplier  // Применяем бонус к HP
+    
+    world.send("Final HP: " + hp)
+}
+```
+
+**Результат:**
+```
+After damage: HP = 75
+Status: Wounded
+Final HP: 150
+```
+
 ---
 
 ## ⚙️ Автоматическая конвертация типов

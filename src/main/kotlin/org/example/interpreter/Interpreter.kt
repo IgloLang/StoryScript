@@ -414,7 +414,14 @@ class Interpreter {
         return try {
             val field = obj::class.java.getDeclaredField(propertyName)
             field.isAccessible = true
-            toValue(field.get(obj))
+            val fieldValue = field.get(obj)
+            when (fieldValue) {
+                is Number -> NumberValue(fieldValue.toDouble())
+                is String -> StringValue(fieldValue)
+                is Boolean -> BooleanValue(fieldValue)
+                null -> NullValue
+                else -> ObjectValue(fieldValue)
+            }
         } catch (e: Exception) {
             NullValue
         }
