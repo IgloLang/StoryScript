@@ -554,32 +554,50 @@ class Interpreter {
             paramTypes.add(org.example.interpreter.ActiveRunnable::class.java)
         }
         
-        // Find all methods with the given name
-        val allMethods = obj::class.java.declaredMethods.filter { it.name == methodName }
+        // Find all methods with the given name (public methods)
+        val allMethods = obj::class.java.methods.filter { it.name == methodName }
         
-        // Filter methods by argument count
-        val matchingMethods = allMethods.filter { it.parameterCount == args.size + (if (block != null) 1 else 0) }
+        // If no public methods found, try declared methods
+        val methodsToCheck = if (allMethods.isNotEmpty()) allMethods else obj::class.java.declaredMethods.filter { it.name == methodName }
         
-        if (matchingMethods.isEmpty()) {
-            throw NoSuchMethodException("$methodName")
+        // Filter methods by argument count (exact match first)
+        val targetArgCount = args.size + (if (block != null) 1 else 0)
+        val matchingMethods = methodsToCheck.filter { it.parameterCount == targetArgCount }
+        
+        // If no exact match, try methods with more parameters (for default values)
+        // This handles Kotlin default parameters and Java varargs
+        val candidateMethods = if (matchingMethods.isNotEmpty()) {
+            matchingMethods
+        } else {
+            methodsToCheck.filter { it.parameterCount >= targetArgCount }
+        }
+        
+        if (candidateMethods.isEmpty()) {
+            throw NoSuchMethodException("$methodName with $args.size arguments not found")
         }
         
         // Pick the best matching method
-        var method = matchingMethods[0]
+        // Prefer methods with fewer parameters (closer match to what we're passing)
+        var method = candidateMethods.minByOrNull { it.parameterCount } ?: candidateMethods[0]
         var bestScore = Int.MIN_VALUE
         
-        for (candidate in matchingMethods) {
+        for (candidate in candidateMethods) {
             val paramTypes = candidate.parameterTypes
             var score = 0
             
+            // Prefer methods where the parameter count is closest to our arg count
+            score -= Math.abs(candidate.parameterCount - args.size) * 1000
+            
             // Score based on how well the types match
-            for ((i, arg) in args.withIndex()) {
+            val argCountToScore = minOf(args.size, candidate.parameterCount)
+            for (i in 0 until argCountToScore) {
+                val arg = args[i]
                 val paramType = paramTypes[i]
                 when {
                     paramType == String::class.java && arg is StringValue -> score += 100
                     paramType == Int::class.java && arg is NumberValue -> score += 100
                     paramType == Boolean::class.java && arg is BooleanValue -> score += 100
-                    paramType == Object::class.java -> score += 50 // Generic Object match
+                    paramType == Any::class.java -> score += 50 // Generic Object match
                     paramType.isAssignableFrom(String::class.java) && arg is StringValue -> score += 75
                     else -> score += 0
                 }
@@ -595,8 +613,11 @@ class Interpreter {
         val methodParams = method.parameterTypes
         val methodArgs = mutableListOf<Any?>()
         
+        // Only prepare arguments for the parameters the method actually expects
         for ((i, arg) in args.withIndex()) {
-            val targetType = if (i < methodParams.size) methodParams[i] else String::class.java
+            if (i >= methodParams.size) break  // Don't exceed method parameter count
+            
+            val targetType = methodParams[i]
             
             methodArgs.add(when {
                 targetType == String::class.java -> {
@@ -658,15 +679,35 @@ class Interpreter {
         val obj = evaluate(expr.object_)
         
         if (obj is ObjectValue) {
-            // Try to access as property
-            val field = obj.obj::class.java.getField(expr.property)
-            val value = field.get(obj.obj)
-            return when (value) {
-                is String -> StringValue(value)
-                is Number -> NumberValue(value.toDouble())
-                is Boolean -> BooleanValue(value)
-                null -> NullValue
-                else -> ObjectValue(value)
+            // Try to access as Kotlin property (getter method)
+            val getterMethodName = "get${expr.property.replaceFirstChar { it.uppercase() }}"
+            try {
+                val getter = obj.obj::class.java.getMethod(getterMethodName)
+                val value = getter.invoke(obj.obj)
+                return when (value) {
+                    is String -> StringValue(value)
+                    is Number -> NumberValue(value.toDouble())
+                    is Boolean -> BooleanValue(value)
+                    null -> NullValue
+                    else -> ObjectValue(value)
+                }
+            } catch (e: NoSuchMethodException) {
+                // Not a getter, try as property
+            }
+            
+            // Try to access as direct property/field
+            return try {
+                val field = obj.obj::class.java.getField(expr.property)
+                val value = field.get(obj.obj)
+                when (value) {
+                    is String -> StringValue(value)
+                    is Number -> NumberValue(value.toDouble())
+                    is Boolean -> BooleanValue(value)
+                    null -> NullValue
+                    else -> ObjectValue(value)
+                }
+            } catch (e: NoSuchFieldException) {
+                NullValue
             }
         }
         
