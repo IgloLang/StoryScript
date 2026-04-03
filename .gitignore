@@ -45,4 +45,6 @@ bin/
 .DS_Store
 .idea/
 .gitignore
+.gitignore/
 script.st
+script.st/
