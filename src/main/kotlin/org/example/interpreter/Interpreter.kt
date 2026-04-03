@@ -520,15 +520,30 @@ class Interpreter {
         }
         
         // Try to find the method with matching parameter types
-        val method = try {
-            obj::class.java.getMethod(methodName, *paramTypes.toTypedArray())
+        var method: java.lang.reflect.Method? = null
+        
+        // First, try exact type matching
+        try {
+            method = obj::class.java.getMethod(methodName, *paramTypes.toTypedArray())
         } catch (e: NoSuchMethodException) {
-            // If not found, try with all String parameters (backward compatibility)
+            // If not found, try with Object parameters (for Any? types)
             try {
-                obj::class.java.getMethod(methodName, *Array(args.size) { String::class.java })
+                val objectTypes = mutableListOf<Class<*>>()
+                for (i in 0 until args.size) {
+                    objectTypes.add(Object::class.java)
+                }
+                if (block != null) {
+                    objectTypes[objectTypes.size - 1] = org.example.interpreter.ActiveRunnable::class.java
+                }
+                method = obj::class.java.getMethod(methodName, *objectTypes.toTypedArray())
             } catch (e2: NoSuchMethodException) {
-                // If still not found, throw original error
-                throw e
+                // If still not found, try with all String parameters (backward compatibility)
+                try {
+                    method = obj::class.java.getMethod(methodName, *Array(args.size) { String::class.java })
+                } catch (e3: NoSuchMethodException) {
+                    // If still not found, throw original error
+                    throw e
+                }
             }
         }
         
@@ -557,6 +572,15 @@ class Interpreter {
                 }
                 targetType == Boolean::class.java -> {
                     arg.toBoolean()
+                }
+                targetType == Object::class.java -> {
+                    // For Object type (Any?), pass the appropriate value
+                    when (arg) {
+                        is NumberValue -> arg.value.toInt()
+                        is StringValue -> arg.value
+                        is BooleanValue -> arg.value
+                        else -> arg.toStringValue()
+                    }
                 }
                 else -> {
                     when (arg) {
