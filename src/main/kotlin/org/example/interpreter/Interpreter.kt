@@ -192,6 +192,8 @@ class Interpreter {
             is Identifier -> currentEnv.get(expr.name)
             is BinaryOp -> evaluateBinaryOp(expr)
             is UnaryOp -> evaluateUnaryOp(expr)
+            is TernaryOp -> evaluateTernaryOp(expr)
+            is AssignmentOp -> evaluateAssignmentOp(expr)
             is CallExpression -> evaluateCall(expr)
             is MemberExpression -> evaluateMember(expr)
             is BlockExpression -> FunctionValue(emptyList(), BlockStatement(expr.statements), currentEnv)
@@ -313,8 +315,129 @@ class Interpreter {
         }
     }
     
+    private fun evaluateTernaryOp(expr: TernaryOp): Value {
+        val condition = evaluate(expr.condition)
+        return if (condition.toBoolean()) {
+            evaluate(expr.thenExpr)
+        } else {
+            evaluate(expr.elseExpr)
+        }
+    }
+    
+    private fun evaluateAssignmentOp(expr: AssignmentOp): Value {
+        val value = evaluate(expr.value)
+        
+        if (expr.target is Identifier) {
+            val targetName = expr.target.name
+            
+            val finalValue = when (expr.operator) {
+                TokenType.ASSIGN -> value
+                TokenType.PLUS_ASSIGN -> {
+                    val current = currentEnv.get(targetName).toNumber()
+                    NumberValue(current + value.toNumber())
+                }
+                TokenType.MINUS_ASSIGN -> {
+                    val current = currentEnv.get(targetName).toNumber()
+                    NumberValue(current - value.toNumber())
+                }
+                TokenType.STAR_ASSIGN -> {
+                    val current = currentEnv.get(targetName).toNumber()
+                    NumberValue(current * value.toNumber())
+                }
+                TokenType.SLASH_ASSIGN -> {
+                    val current = currentEnv.get(targetName).toNumber()
+                    val divisor = value.toNumber()
+                    if (divisor == 0.0) throw RuntimeException("Division by zero")
+                    NumberValue(current / divisor)
+                }
+                TokenType.PERCENT_ASSIGN -> {
+                    val current = currentEnv.get(targetName).toNumber()
+                    NumberValue(current % value.toNumber())
+                }
+                TokenType.POWER_ASSIGN -> {
+                    val current = currentEnv.get(targetName).toNumber()
+                    NumberValue(Math.pow(current, value.toNumber()))
+                }
+                else -> value
+            }
+            
+            if (currentEnv.exists(targetName)) {
+                currentEnv.set(targetName, finalValue)
+            } else {
+                currentEnv.define(targetName, finalValue)
+            }
+            
+            return finalValue
+        } else if (expr.target is MemberExpression) {
+            val obj = evaluate(expr.target.object_)
+            val propertyName = expr.target.property
+            
+            if (obj is ObjectValue) {
+                val finalValue = when (expr.operator) {
+                    TokenType.ASSIGN -> value
+                    TokenType.PLUS_ASSIGN -> {
+                        val current = getObjectProperty(obj.obj, propertyName).toNumber()
+                        NumberValue(current + value.toNumber())
+                    }
+                    TokenType.MINUS_ASSIGN -> {
+                        val current = getObjectProperty(obj.obj, propertyName).toNumber()
+                        NumberValue(current - value.toNumber())
+                    }
+                    TokenType.STAR_ASSIGN -> {
+                        val current = getObjectProperty(obj.obj, propertyName).toNumber()
+                        NumberValue(current * value.toNumber())
+                    }
+                    TokenType.SLASH_ASSIGN -> {
+                        val current = getObjectProperty(obj.obj, propertyName).toNumber()
+                        val divisor = value.toNumber()
+                        if (divisor == 0.0) throw RuntimeException("Division by zero")
+                        NumberValue(current / divisor)
+                    }
+                    TokenType.PERCENT_ASSIGN -> {
+                        val current = getObjectProperty(obj.obj, propertyName).toNumber()
+                        NumberValue(current % value.toNumber())
+                    }
+                    TokenType.POWER_ASSIGN -> {
+                        val current = getObjectProperty(obj.obj, propertyName).toNumber()
+                        NumberValue(Math.pow(current, value.toNumber()))
+                    }
+                    else -> value
+                }
+                return setObjectProperty(obj.obj, propertyName, finalValue)
+            }
+        }
+        
+        throw RuntimeException("Invalid assignment target")
+    }
+    
+    private fun getObjectProperty(obj: Any, propertyName: String): Value {
+        return try {
+            val field = obj::class.java.getDeclaredField(propertyName)
+            field.isAccessible = true
+            toValue(field.get(obj))
+        } catch (e: Exception) {
+            NullValue
+        }
+    }
+    
+    private fun setObjectProperty(obj: Any, propertyName: String, value: Value): Value {
+        return try {
+            val field = obj::class.java.getDeclaredField(propertyName)
+            field.isAccessible = true
+            val javaValue = when (value) {
+                is NumberValue -> value.value
+                is StringValue -> value.value
+                is BooleanValue -> value.value
+                else -> null
+            }
+            field.set(obj, javaValue)
+            value
+        } catch (e: Exception) {
+            value
+        }
+    }
+    
     private fun evaluateCall(expr: CallExpression): Value {
-        // Handle method calls on Java objects (e.g., world.send("test"))
         if (expr.callee is MemberExpression) {
             val obj = evaluate(expr.callee.object_)
             val methodName = expr.callee.property

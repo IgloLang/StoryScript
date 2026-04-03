@@ -218,6 +218,36 @@ class Lexer(private val input: String) {
                 column += 2
                 Token(TokenType.OR, "||", line, startCol)
             }
+            c == '+' && peek() == '=' -> {
+                position += 2
+                column += 2
+                Token(TokenType.PLUS_ASSIGN, "+=", line, startCol)
+            }
+            c == '-' && peek() == '=' -> {
+                position += 2
+                column += 2
+                Token(TokenType.MINUS_ASSIGN, "-=", line, startCol)
+            }
+            c == '*' && peek() == '=' -> {
+                position += 2
+                column += 2
+                Token(TokenType.STAR_ASSIGN, "*=", line, startCol)
+            }
+            c == '/' && peek() == '=' -> {
+                position += 2
+                column += 2
+                Token(TokenType.SLASH_ASSIGN, "/=", line, startCol)
+            }
+            c == '%' && peek() == '=' -> {
+                position += 2
+                column += 2
+                Token(TokenType.PERCENT_ASSIGN, "%=", line, startCol)
+            }
+            c == '*' && peek() == '*' && position + 2 < input.length && input[position + 2] == '=' -> {
+                position += 3
+                column += 3
+                Token(TokenType.POWER_ASSIGN, "**=", line, startCol)
+            }
             c == '+' -> {
                 position++
                 column++
@@ -242,6 +272,11 @@ class Lexer(private val input: String) {
                 position++
                 column++
                 Token(TokenType.PERCENT, "%", line, startCol)
+            }
+            c == '?' -> {
+                position++
+                column++
+                Token(TokenType.QUESTION, "?", line, startCol)
             }
             c == '=' -> {
                 position++

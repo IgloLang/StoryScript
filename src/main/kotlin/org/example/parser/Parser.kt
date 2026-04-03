@@ -210,13 +210,27 @@ class Parser(private val tokens: List<Token>) {
     }
     
     private fun parseAssignment(): Expression {
+        var expr = parseTernary()
+        
+        if (match(TokenType.ASSIGN, TokenType.PLUS_ASSIGN, TokenType.MINUS_ASSIGN, 
+                 TokenType.STAR_ASSIGN, TokenType.SLASH_ASSIGN, TokenType.PERCENT_ASSIGN, 
+                 TokenType.POWER_ASSIGN)) {
+            val operator = previous().type
+            val value = parseAssignment()
+            expr = AssignmentOp(expr, operator, value)
+        }
+        
+        return expr
+    }
+    
+    private fun parseTernary(): Expression {
         var expr = parseLogicalOr()
         
-        if (match(TokenType.ASSIGN)) {
-            val value = parseAssignment()
-            if (expr is Identifier) {
-                expr = BinaryOp(expr, TokenType.ASSIGN, value)
-            }
+        if (match(TokenType.QUESTION)) {
+            val thenExpr = parseExpression()
+            consume(TokenType.COLON, "Expected ':' in ternary operator")
+            val elseExpr = parseTernary()
+            expr = TernaryOp(expr, thenExpr, elseExpr)
         }
         
         return expr
