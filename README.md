@@ -2,11 +2,751 @@
 
 **Язык программирования для создания интерактивных скриптов**
 
-Интерпретатор StoryScript позволяет выполнять скрипты с полной поддержкой функций, переменных, управления потоком и интеграции с Java объектами. Написан на **Kotlin** с использованием классического подхода: лексер → парсер → интерпретатор.
+Интерпретатор StoryScript позволяет выполнять скрипты с полной поддержкой функций, переменных, управления потоком, встроенных классов и интеграции с Java объектами. Написан на **Kotlin** с использованием классического подхода: лексер → парсер → интерпретатор.
+
+**Версия:** 1.2.0  
+**Язык реализации:** Kotlin на JVM  
+**Требования:** Java 11+
 
 ---
 
 ## ⚡ Быстрый старт
+
+### Требования
+- Java 11+
+- Gradle (входит в проект)
+
+### Установка и запуск
+
+```bash
+# Клонировать/открыть проект
+cd StoryScript
+
+# Сборка проекта
+./gradlew build
+
+# Запуск скрипта
+./gradlew run --args="script.st"
+```
+
+### Первый скрипт
+
+`script.st`:
+```kotlin
+function main() {
+    world.send("Hello, StoryScript!")
+    console.printGreen("Success!")
+}
+```
+
+Результат:
+```
+Hello, StoryScript!
+Success!
+```
+
+---
+
+## ✨ Ключевые возможности
+
+✅ **Динамическая типизация** — переменные меняют тип во время выполнения  
+✅ **Функции первого класса** — функции как параметры и возвращаемые значения  
+✅ **8 встроенных классов** — List, Map, Set, Stack, Queue, StringBuilder, Counter, Pair  
+✅ **Rich API** — Math, String, Random, Time, File, Console  
+✅ **Полная интеграция с Java** — вызывайте Java методы прямо из скриптов  
+✅ **Automatic Type Coercion** — автоматическая конвертация типов  
+✅ **Замыкания** — функции с лексическим захватом переменных  
+✅ **Цветной вывод** — красивое форматирование консоли  
+
+---
+
+## 📚 Встроенные классы (v1.2)
+
+### 1️⃣ List — Динамический массив
+
+```kotlin
+function main() {
+    var list = new List()
+    list.add("apple")
+    list.add("banana")
+    list.add("cherry")
+    
+    world.send(str(list))          // [apple, banana, cherry]
+    world.send(str(list.size()))   // 3
+    
+    list.remove("banana")
+    world.send(str(list))          // [apple, cherry]
+}
+```
+
+**Методы:** `add(item)`, `remove(item)`, `remove(index)`, `get(index)`, `size()`, `clear()`, `contains(item)`, `indexOf(item)`
+
+---
+
+### 2️⃣ Map — Словарь ключ-значение
+
+```kotlin
+function main() {
+    var map = new Map()
+    map.set("name", "Alice")
+    map.set("age", "30")
+    map.set("city", "Moscow")
+    
+    world.send(str(map))           // {name: Alice, age: 30, city: Moscow}
+    world.send(str(map.get("name"))) // Alice
+    world.send(str(map.size()))    // 3
+    
+    map.remove("age")
+    world.send(str(map.has("age"))) // false
+}
+```
+
+**Методы:** `set(key, value)`, `get(key)`, `remove(key)`, `has(key)`, `size()`, `clear()`, `keys()`
+
+---
+
+### 3️⃣ Set — Набор уникальных элементов
+
+```kotlin
+function main() {
+    var set = new Set()
+    set.add("red")
+    set.add("green")
+    set.add("blue")
+    set.add("red")  // Дубликат будет проигнорирован
+    
+    world.send(str(set))           // {red, green, blue}
+    world.send(str(set.size()))    // 3
+    world.send(str(set.has("red"))) // true
+    
+    set.remove("green")
+    world.send(str(set))           // {red, blue}
+}
+```
+
+**Методы:** `add(item)`, `remove(item)`, `has(item)`, `size()`, `clear()`
+
+---
+
+### 4️⃣ Stack — Стек (LIFO - Last In First Out)
+
+```kotlin
+function main() {
+    var stack = new Stack()
+    stack.push("first")
+    stack.push("second")
+    stack.push("third")
+    
+    world.send(str(stack))         // [third, second, first]
+    world.send(str(stack.peek()))  // third
+    
+    var popped = stack.pop()
+    world.send(str(popped))        // third
+    world.send(str(stack))         // [second, first]
+}
+```
+
+**Методы:** `push(item)`, `pop()`, `peek()`, `size()`, `isEmpty()`, `clear()`
+
+---
+
+### 5️⃣ Queue — Очередь (FIFO - First In First Out)
+
+```kotlin
+function main() {
+    var queue = new Queue()
+    queue.enqueue("task1")
+    queue.enqueue("task2")
+    queue.enqueue("task3")
+    
+    world.send(str(queue))         // [task1, task2, task3]
+    world.send(str(queue.front())) // task1
+    
+    var processed = queue.dequeue()
+    world.send(str(processed))     // task1
+    world.send(str(queue))         // [task2, task3]
+}
+```
+
+**Методы:** `enqueue(item)`, `dequeue()`, `front()`, `size()`, `isEmpty()`, `clear()`
+
+---
+
+### 6️⃣ StringBuilder — Построитель строк
+
+```kotlin
+function main() {
+    var builder = new StringBuilder()
+    builder.append("Hello")
+    builder.append(" ")
+    builder.append("World")
+    
+    world.send(str(builder))       // Hello World
+    world.send(str(builder.length())) // 11
+    
+    var reversed = builder.reverse()
+    world.send(str(reversed))      // dlroW olleH
+    
+    var upper = builder.toUpperCase()
+    world.send(str(upper))         // HELLO WORLD
+}
+```
+
+**Методы:** `append(text)`, `insert(index, text)`, `delete(start, end)`, `reverse()`, `clear()`, `length()`, `toUpperCase()`, `toLowerCase()`
+
+---
+
+### 7️⃣ Counter — Счётчик
+
+```kotlin
+function main() {
+    var counter = new Counter()
+    counter.increment()
+    counter.increment()
+    counter.increment()
+    
+    world.send(str(counter))       // 3
+    
+    counter.add(5)
+    world.send(str(counter))       // 8
+    
+    counter.subtract(2)
+    world.send(str(counter))       // 6
+    
+    counter.reset()
+    world.send(str(counter))       // 0
+}
+```
+
+**Методы:** `increment()`, `decrement()`, `add(value)`, `subtract(value)`, `get()`, `set(value)`, `reset()`
+
+---
+
+### 8️⃣ Pair — Пара значений
+
+```kotlin
+function main() {
+    var pair = new Pair("key", "value")
+    
+    world.send(str(pair))          // (key, value)
+    world.send(str(pair.first))    // key
+    world.send(str(pair.second))   // value
+    
+    pair.first = "newKey"
+    pair.second = "newValue"
+    world.send(str(pair))          // (newKey, newValue)
+    
+    pair.swap()
+    world.send(str(pair))          // (newValue, newKey)
+}
+```
+
+**Методы/Свойства:** `first`, `second`, `swap()`
+
+---
+
+## 🔤 Типы данных и Синтаксис
+
+### Основные типы
+
+| Тип | Описание | Примеры |
+|-----|---------|---------|
+| **Number** | Int, Float, Double | `42`, `3.14`, `-5` |
+| **String** | Текст | `"Hello"`, `'Single'` |
+| **Boolean** | Истина/ложь | `true`, `false` |
+| **null** | Нулевое значение | `null` |
+| **Function** | Функция | `function foo() {}` |
+| **Object** | Java/Kotlin объект | `entity(10)`, `world` |
+
+### Переменные
+
+```kotlin
+var name = "Alice"          // String
+var age = 25                // Int
+var height = 1.75           // Float
+var active = true           // Boolean
+var value = null            // null
+
+// Переприсвоение
+var x = 10
+x = "text"                  // ✓ Типы меняются динамически
+```
+
+### Функции
+
+```kotlin
+// Простая функция
+function greet(name) {
+    world.send("Hello, " + name)
+}
+
+// С return
+function add(a, b) {
+    return a + b
+}
+
+// Без параметров
+function sayHi() {
+    world.send("Hi!")
+}
+
+// Вложенные функции
+function outer() {
+    function inner() {
+        world.send("Inner function")
+    }
+    inner()
+}
+
+// Вызов
+greet("Bob")
+var sum = add(5, 3)
+sayHi()
+```
+
+### Условные операторы
+
+#### if/else if/else
+```kotlin
+if (age < 13) {
+    world.send("Child")
+} else if (age < 18) {
+    world.send("Teen")
+} else {
+    world.send("Adult")
+}
+```
+
+#### switch/case/default
+```kotlin
+switch (status) {
+    case 1:
+        world.send("Idle")
+        break
+    case 2:
+        world.send("Working")
+        break
+    default:
+        world.send("Unknown")
+}
+```
+
+#### Тернарный оператор
+```kotlin
+var status = age >= 18 ? "Adult" : "Minor"
+var grade = score >= 90 ? "A" : score >= 80 ? "B" : "C"
+```
+
+### Циклы
+
+#### while
+```kotlin
+var i = 0
+while (i < 5) {
+    world.send(i)
+    i++
+}
+```
+
+#### for
+```kotlin
+for (var i = 0; i < 5; i++) {
+    world.send(i)
+}
+
+for (var x = 10; x > 0; x--) {
+    world.send(x)
+}
+```
+
+#### break
+```kotlin
+while (true) {
+    if (condition) {
+        break
+    }
+}
+```
+
+### Операторы
+
+#### Арифметические
+```kotlin
+a + b           // Сложение
+a - b           // Вычитание
+a * b           // Умножение
+a / b           // Деление
+a // b          // Целое деление
+a % b           // Остаток
+a ^ b           // Степень (2^3 = 8)
+-a              // Унарный минус
++b              // Унарный плюс
+```
+
+#### Логические
+```kotlin
+x && y          // И (AND)
+x || y          // ИЛИ (OR)
+!x              // НЕ (NOT)
+```
+
+#### Сравнение
+```kotlin
+a == b          // Мягкое равенство (с конвертацией)
+a != b          // Не равно
+a === b         // Строгое равенство (без конвертации)
+a !== b         // Строгое не равенство
+a > b           // Больше
+a < b           // Меньше
+a >= b          // Больше или равно
+a <= b          // Меньше или равно
+```
+
+#### Составные операторы присваивания
+```kotlin
+x += 5          // x = x + 5
+x -= 3          // x = x - 3
+x *= 2          // x = x * 2
+x /= 4          // x = x / 4
+x %= 2          // x = x % 2
+x **= 3         // x = x ^ 3
+```
+
+#### Инкремент/Декремент
+```kotlin
+x++             // Постфиксный: вернёт старое значение
+++x             // Префиксный: вернёт новое значение
+x--             // Постфиксный
+--x             // Префиксный
+```
+
+#### Строковая конкатенация
+```kotlin
+"Hello" + " " + "World"     // "Hello World"
+"Count: " + 42              // "Count: 42"
+"Value: " + 3.14            // "Value: 3.14"
+```
+
+---
+
+## 🔌 Встроенные API
+
+### WorldAPI (объект `world`)
+
+Глобальный объект для вывода и управления временем.
+
+```kotlin
+world.send("Hello")                    // Вывод текста
+world.send("Player", "Action")         // С префиксом
+world.time(3) {                        // Задержка 3 секунды
+    world.send("Finished!")
+}
+```
+
+---
+
+### EntityAPI
+
+```kotlin
+var e = entity(42)
+e.send()                    // [entity] 42
+var value = e.send_return() // 42
+```
+
+---
+
+### MathAPI (объект `math`)
+
+```kotlin
+var sqrt = math.sqrt(16)               // 4.0
+var power = math.pow(2, 3)             // 8.0
+var max = math.max(10, 20)             // 20
+var min = math.min(10, 20)             // 10
+var sin = math.sin(0)                  // 0.0
+var pi = math.pi()                     // 3.14159...
+```
+
+**Методы:** `abs()`, `sqrt()`, `pow()`, `min()`, `max()`, `sin()`, `cos()`, `tan()`, `log()`, `log10()`, `exp()`, `round()`, `floor()`, `ceil()`, `pi()`, `e()`
+
+---
+
+### StringAPI (объект `string`)
+
+```kotlin
+var len = string.length("hello")       // 5
+var upper = string.toUpperCase("hello")  // "HELLO"
+var lower = string.toLowerCase("HELLO")  // "hello"
+var has = string.contains("hello", "lo") // true
+var parts = string.split("a,b,c", ",")  // ["a", "b", "c"]
+```
+
+**Методы:** `length()`, `substring()`, `indexOf()`, `contains()`, `replace()`, `toUpperCase()`, `toLowerCase()`, `trim()`, `split()`, `startsWith()`, `endsWith()`, `repeat()`, `charAt()`
+
+---
+
+### RandomAPI (объект `random`)
+
+```kotlin
+var chance = random.random()           // 0.0 - 1.0
+var num = random.nextInt(100)          // 0 - 99
+var num = random.nextInt(1, 10)        // 1 - 9
+var dbl = random.nextDouble(50.0)      // 0.0 - 50.0
+var flip = random.nextBoolean()        // true или false
+var roll = random.dice()               // 1 - 6
+var hundred = random.random100()       // 1 - 100
+```
+
+---
+
+### TimeAPI (объект `time`)
+
+```kotlin
+var now = time.now()                   // "2026-04-03T14:30:45.123"
+var time_str = time.time()             // "14:30:45"
+var date = time.date()                 // "2026-04-03"
+var hour = time.hour()                 // 14
+var minute = time.minute()             // 30
+```
+
+---
+
+### FileAPI (объект `file`)
+
+```kotlin
+var content = file.readFile("data.txt")         // Чтение
+file.writeFile("output.txt", "Hello")           // Запись
+file.appendFile("log.txt", "Event\n")           // Добавить
+var exists = file.exists("file.txt")            // Проверка
+file.delete("file.txt")                         // Удалить
+```
+
+---
+
+### ConsoleAPI (объект `console`)
+
+```kotlin
+console.printRed("Error")              // 🔴 Красный текст
+console.printGreen("Success")          // 🟢 Зелёный текст
+console.printBlue("Info")              // 🔵 Синий текст
+console.printYellow("Warning")         // 🟡 Жёлтый текст
+console.printMagenta("Special")        // 🟣 Пурпурный текст
+console.printCyan("Highlight")         // 🔷 Голубой текст
+console.clear()                        // Очистить экран
+console.println("text")                // Вывод с новой строкой
+console.newLine()                      // Просто новая строка
+console.separator()                    // Разделитель --------
+console.centerText("Title", 50)        // Центрированный текст
+```
+
+---
+
+## 🎯 Встроенные функции
+
+### Ввод данных
+
+```kotlin
+var name = input("Ваше имя: ")         // Ввод строки
+var age = int(input("Возраст: "))      // Ввод и конвертация
+var height = float(input("Рост (м): ")) // Float
+```
+
+### Конвертация типов
+
+```kotlin
+var i = int("42")                      // String → Int → 42
+var i = int(3.14)                      // Float → Int → 3
+var i = int(true)                      // Boolean → Int → 1
+
+var f = float("3.14")                  // String → Float → 3.14
+var f = float(42)                      // Int → Float → 42.0
+
+var d = double("2.71828")              // String → Double → 2.71828
+
+var s = str(42)                        // Int → String → "42"
+var s = str(3.14)                      // Float → String → "3.14"
+var s = str(true)                      // Boolean → String → "true"
+```
+
+### Проверка типов
+
+```kotlin
+var type = typeof(42)                  // "Int"
+var type = typeof(3.14)                // "Float"
+var type = typeof("text")              // "String"
+var type = typeof(true)                // "Boolean"
+
+var formatted = format(42)             // "42 [Int]"
+var formatted = format("hello")        // "hello [String]"
+```
+
+---
+
+## 📖 Примеры программ
+
+### Пример 1: Демонстрация встроенных классов
+
+```kotlin
+function main() {
+    console.printCyan("=== Встроенные классы ===")
+    console.newLine()
+    
+    // List
+    console.printGreen("1. List:")
+    var list = new List()
+    list.add("apple")
+    list.add("banana")
+    console.println(str(list))
+    console.newLine()
+    
+    // Map
+    console.printGreen("2. Map:")
+    var map = new Map()
+    map.set("name", "Alice")
+    map.set("age", "30")
+    console.println(str(map))
+    console.newLine()
+    
+    // Stack
+    console.printGreen("3. Stack:")
+    var stack = new Stack()
+    stack.push("first")
+    stack.push("second")
+    console.println(str(stack))
+    console.newLine()
+    
+    // Counter
+    console.printGreen("4. Counter:")
+    var counter = new Counter()
+    counter.increment()
+    counter.increment()
+    counter.add(3)
+    console.println(str(counter))
+    console.newLine()
+}
+```
+
+### Пример 2: Калькулятор
+
+```kotlin
+function main() {
+    console.printCyan("=== Калькулятор ===")
+    console.newLine()
+    
+    while (true) {
+        var input1 = input("Первое число (или 'exit'): ")
+        
+        if (input1 == "exit") {
+            console.printYellow("До свидания!")
+            break
+        }
+        
+        var op = input("Операция (+, -, *, /): ")
+        var input2 = input("Второе число: ")
+        
+        var num1 = float(input1)
+        var num2 = float(input2)
+        var result = 0
+        
+        if (op == "+") {
+            result = num1 + num2
+        } else if (op == "-") {
+            result = num1 - num2
+        } else if (op == "*") {
+            result = num1 * num2
+        } else if (op == "/") {
+            if (num2 == 0) {
+                console.printRed("Ошибка: деление на ноль!")
+                console.newLine()
+                continue
+            }
+            result = num1 / num2
+        } else {
+            console.printRed("Неизвестная операция!")
+            console.newLine()
+            continue
+        }
+        
+        console.printBlue("Результат: ")
+        console.printMagenta(str(result))
+        console.newLine()
+        console.newLine()
+    }
+}
+```
+
+### Пример 3: Работа со Stack
+
+```kotlin
+function main() {
+    console.printGreen("=== Демонстрация Stack ===")
+    console.newLine()
+    
+    var stack = new Stack()
+    
+    // Добавление элементов
+    stack.push("one")
+    stack.push("two")
+    stack.push("three")
+    console.println("Stack: " + str(stack))
+    
+    // Просмотр верхнего элемента
+    console.println("Top: " + str(stack.peek()))
+    
+    // Извлечение элементов
+    while (!stack.isEmpty()) {
+        console.println("Pop: " + str(stack.pop()))
+    }
+    
+    console.println("Empty: " + str(stack.isEmpty()))
+}
+```
+
+### Пример 4: Использование Map
+
+```kotlin
+function main() {
+    var users = new Map()
+    
+    users.set("user1", "Alice")
+    users.set("user2", "Bob")
+    users.set("user3", "Charlie")
+    
+    console.println("Total users: " + str(users.size()))
+    
+    if (users.has("user1")) {
+        console.println("User found: " + str(users.get("user1")))
+    }
+    
+    console.println("All users: " + str(users))
+}
+```
+
+### Пример 5: Случайная игра
+
+```kotlin
+function main() {
+    var secretNumber = random.nextInt(1, 101)
+    var attempts = 0
+    var guessed = false
+    
+    console.printCyan("=== Угадай число ===")
+    console.println("Я загадал число от 1 до 100")
+    console.newLine()
+    
+    while (!guessed) {
+        var guess = int(input("Попытка " + (attempts + 1) + ": "))
+        attempts++
+        
+        if (guess == secretNumber) {
+            console.printGreen("Правильно! Угадал за " + attempts + " попыток!")
+            guessed = true
+        } else if (guess < secretNumber) {
+            console.printYellow("Число больше")
+        } else {
+            console.printYellow("Число меньше")
+        }
+    }
+}
 
 ### Требования
 - Java 11+

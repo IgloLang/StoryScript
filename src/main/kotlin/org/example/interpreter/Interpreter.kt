@@ -498,6 +498,41 @@ class Interpreter {
             "List" -> {
                 ObjectValue(org.example.cs.ListAPI())
             }
+            "Map" -> {
+                ObjectValue(org.example.cs.Map())
+            }
+            "Set" -> {
+                ObjectValue(org.example.cs.Set())
+            }
+            "Stack" -> {
+                ObjectValue(org.example.cs.Stack())
+            }
+            "Queue" -> {
+                ObjectValue(org.example.cs.Queue())
+            }
+            "StringBuilder" -> {
+                ObjectValue(org.example.cs.StringBuilder())
+            }
+            "Counter" -> {
+                ObjectValue(org.example.cs.Counter())
+            }
+            "Pair" -> {
+                val first = if (expr.args.isNotEmpty()) evaluate(expr.args[0]) else null
+                val second = if (expr.args.size > 1) evaluate(expr.args[1]) else null
+                val firstVal = when (first) {
+                    is StringValue -> first.value
+                    is NumberValue -> first.value
+                    is BooleanValue -> first.value
+                    else -> first?.toString()
+                }
+                val secondVal = when (second) {
+                    is StringValue -> second.value
+                    is NumberValue -> second.value
+                    is BooleanValue -> second.value
+                    else -> second?.toString()
+                }
+                ObjectValue(org.example.cs.Pair(firstVal, secondVal))
+            }
             else -> throw RuntimeException("Unknown class: ${expr.className}")
         }
     }
