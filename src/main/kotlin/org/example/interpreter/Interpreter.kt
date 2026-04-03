@@ -195,6 +195,7 @@ class Interpreter {
             is TernaryOp -> evaluateTernaryOp(expr)
             is AssignmentOp -> evaluateAssignmentOp(expr)
             is CallExpression -> evaluateCall(expr)
+            is NewExpression -> evaluateNew(expr)
             is MemberExpression -> evaluateMember(expr)
             is BlockExpression -> FunctionValue(emptyList(), BlockStatement(expr.statements), currentEnv)
             else -> NullValue
@@ -489,6 +490,15 @@ class Interpreter {
             }
         } finally {
             currentEnv = previousEnv
+        }
+    }
+    
+    private fun evaluateNew(expr: NewExpression): Value {
+        return when (expr.className) {
+            "List" -> {
+                ObjectValue(org.example.cs.ListAPI())
+            }
+            else -> throw RuntimeException("Unknown class: ${expr.className}")
         }
     }
     

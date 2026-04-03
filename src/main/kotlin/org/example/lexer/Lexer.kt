@@ -19,6 +19,7 @@ class Lexer(private val input: String) {
         "for" to TokenType.FOR,
         "while" to TokenType.WHILE,
         "return" to TokenType.RETURN,
+        "new" to TokenType.NEW,
         "true" to TokenType.BOOLEAN,
         "false" to TokenType.BOOLEAN
     )

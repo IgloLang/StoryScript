@@ -27,6 +27,7 @@ data class UnaryOp(val operator: TokenType, val operand: Expression, val isPostf
 data class TernaryOp(val condition: Expression, val thenExpr: Expression, val elseExpr: Expression) : Expression()
 data class AssignmentOp(val target: Expression, val operator: TokenType, val value: Expression) : Expression()
 data class CallExpression(val callee: Expression, val args: List<Expression>, val trailingBlock: BlockExpression? = null) : Expression()
+data class NewExpression(val className: String, val args: List<Expression>) : Expression()
 data class MemberExpression(val object_: Expression, val property: String) : Expression()
 data class Identifier(val name: String) : Expression()
 data class NumberLiteral(val value: Double) : Expression()

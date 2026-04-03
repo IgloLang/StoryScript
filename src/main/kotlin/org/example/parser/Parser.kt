@@ -326,6 +326,21 @@ class Parser(private val tokens: List<Token>) {
             return UnaryOp(operator, expr)
         }
         
+        if (match(TokenType.NEW)) {
+            val className = consume(TokenType.IDENTIFIER, "Expected class name after 'new'").value
+            consume(TokenType.LPAREN, "Expected '(' after class name")
+            val args = mutableListOf<Expression>()
+            
+            if (!check(TokenType.RPAREN)) {
+                do {
+                    args.add(parseExpression())
+                } while (match(TokenType.COMMA))
+            }
+            
+            consume(TokenType.RPAREN, "Expected ')' after arguments")
+            return NewExpression(className, args)
+        }
+        
         if (match(TokenType.INCREMENT, TokenType.DECREMENT)) {
             val operator = previous().type
             val expr = parsePostfix()

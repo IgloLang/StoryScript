@@ -3,7 +3,7 @@ package org.example.lexer
 // TokenType Enum - все типы токенов для лексера
 enum class TokenType {
     // Keywords
-    FUNCTION, VAR, IF, ELSE, SWITCH, CASE, BREAK, DEFAULT, FOR, WHILE, RETURN,
+    FUNCTION, VAR, IF, ELSE, SWITCH, CASE, BREAK, DEFAULT, FOR, WHILE, RETURN, NEW,
     
     // Identifiers and literals
     IDENTIFIER, NUMBER, STRING, BOOLEAN,

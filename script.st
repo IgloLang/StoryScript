@@ -1,6 +1,6 @@
 function main() {
-    var test = new List()
+    var list = new List()
     list.add("test1")
     list.add("test2")
-    world.send(test)
+    world.send(list)
 }
