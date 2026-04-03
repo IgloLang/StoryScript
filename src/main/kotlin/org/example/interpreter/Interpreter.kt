@@ -519,31 +519,40 @@ class Interpreter {
             paramTypes.add(org.example.interpreter.ActiveRunnable::class.java)
         }
         
-        // Try to find the method with matching parameter types
-        var method: java.lang.reflect.Method? = null
+        // Find all methods with the given name
+        val allMethods = obj::class.java.declaredMethods.filter { it.name == methodName }
         
-        // First, try exact type matching
-        try {
-            method = obj::class.java.getMethod(methodName, *paramTypes.toTypedArray())
-        } catch (e: NoSuchMethodException) {
-            // If not found, try with Object parameters (for Any? types)
-            try {
-                val objectTypes = mutableListOf<Class<*>>()
-                for (i in 0 until args.size) {
-                    objectTypes.add(Object::class.java)
+        // Filter methods by argument count
+        val matchingMethods = allMethods.filter { it.parameterCount == args.size + (if (block != null) 1 else 0) }
+        
+        if (matchingMethods.isEmpty()) {
+            throw NoSuchMethodException("$methodName")
+        }
+        
+        // Pick the best matching method
+        var method = matchingMethods[0]
+        var bestScore = Int.MIN_VALUE
+        
+        for (candidate in matchingMethods) {
+            val paramTypes = candidate.parameterTypes
+            var score = 0
+            
+            // Score based on how well the types match
+            for ((i, arg) in args.withIndex()) {
+                val paramType = paramTypes[i]
+                when {
+                    paramType == String::class.java && arg is StringValue -> score += 100
+                    paramType == Int::class.java && arg is NumberValue -> score += 100
+                    paramType == Boolean::class.java && arg is BooleanValue -> score += 100
+                    paramType == Object::class.java -> score += 50 // Generic Object match
+                    paramType.isAssignableFrom(String::class.java) && arg is StringValue -> score += 75
+                    else -> score += 0
                 }
-                if (block != null) {
-                    objectTypes[objectTypes.size - 1] = org.example.interpreter.ActiveRunnable::class.java
-                }
-                method = obj::class.java.getMethod(methodName, *objectTypes.toTypedArray())
-            } catch (e2: NoSuchMethodException) {
-                // If still not found, try with all String parameters (backward compatibility)
-                try {
-                    method = obj::class.java.getMethod(methodName, *Array(args.size) { String::class.java })
-                } catch (e3: NoSuchMethodException) {
-                    // If still not found, throw original error
-                    throw e
-                }
+            }
+            
+            if (score > bestScore) {
+                bestScore = score
+                method = candidate
             }
         }
         

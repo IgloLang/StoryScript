@@ -15,6 +15,10 @@ class ListAPI {
         }
     }
     
+    fun remove(item: Any?): Boolean {
+        return items.remove(item)
+    }
+    
     fun get(index: Int): Any? {
         return if (index in 0 until items.size) {
             items[index]
