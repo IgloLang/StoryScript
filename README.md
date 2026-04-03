@@ -375,6 +375,149 @@ var value = e.send_return()    // value = 42
 world.send(value)              // Вывод: 42
 ```
 
+### MathAPI (объект `math`)
+
+Математические функции для вычислений.
+
+```kotlin
+var sqrt = math.sqrt(16)       // 4.0
+var power = math.pow(2, 3)     // 8.0
+var max = math.max(10, 20)     // 20
+var sin = math.sin(0)          // 0.0
+var pi = math.pi()             // 3.14159...
+```
+
+**Методы:** `abs()`, `sqrt()`, `pow()`, `min()`, `max()`, `sin()`, `cos()`, `tan()`, `log()`, `log10()`, `exp()`, `round()`, `floor()`, `ceil()`, `pi()`, `e()`
+
+### StringAPI (объект `string`)
+
+Работа со строками, поиск, замена, преобразование.
+
+```kotlin
+var len = string.length("hello")       // 5
+var upper = string.toUpperCase("hello")  // "HELLO"
+var parts = string.split("a,b,c", ",")  // ["a", "b", "c"]
+var has = string.contains("hello", "lo") // true
+```
+
+**Методы:** `length()`, `substring()`, `indexOf()`, `contains()`, `replace()`, `toUpperCase()`, `toLowerCase()`, `trim()`, `split()`, `startsWith()`, `endsWith()`, `repeat()`, `charAt()`, и другие
+
+### RandomAPI (объект `random`)
+
+Генерирование случайных чисел и выбор.
+
+#### `random(): Double`
+Возвращает случайное число от 0.0 до 1.0
+```kotlin
+var chance = random.random()    // например: 0.7234
+```
+
+#### `nextInt(max): Int`
+Случайное целое число от 0 до max (не включая max)
+```kotlin
+var num = random.nextInt(100)   // число от 0 до 99
+```
+
+#### `nextInt(min, max): Int`
+Случайное целое число в диапазоне [min, max)
+```kotlin
+var num = random.nextInt(1, 10) // число от 1 до 9
+```
+
+#### `nextDouble(max): Double`
+Случайное число с плавающей точкой от 0.0 до max
+```kotlin
+var num = random.nextDouble(50.0)  // например: 23.456
+```
+
+#### `nextDouble(min, max): Double`
+Случайное число с плавающей точкой в диапазоне [min, max)
+```kotlin
+var num = random.nextDouble(10.0, 20.0)  // число между 10.0 и 20.0
+```
+
+#### `nextBoolean(): Boolean`
+Возвращает случайный Boolean (true или false)
+```kotlin
+var flip = random.nextBoolean()  // true или false
+```
+
+#### `random100(): Int`
+Случайное число от 1 до 100
+```kotlin
+var num = random.random100()  // число от 1 до 100
+```
+
+#### `dice(): Int`
+Имитирует бросок кубика (число от 1 до 6)
+```kotlin
+var roll = random.dice()  // 1, 2, 3, 4, 5 или 6
+```
+
+**Примеры использования:**
+```kotlin
+function main() {
+    // Простые примеры
+    var coinFlip = random.nextBoolean() ? "Орёл" : "Решка"
+    world.send("Результат: " + coinFlip)
+    
+    // Игра в кубики
+    var dice1 = random.dice()
+    var dice2 = random.dice()
+    world.send("Сумма кубиков: " + (dice1 + dice2))
+    
+    // Случайное число в диапазоне
+    var secretNum = random.nextInt(1, 21)  // 1-20
+    world.send("Угадайте число от 1 до 20: " + secretNum)
+    
+    // Вероятность события (50%)
+    if (random.random() < 0.5) {
+        world.send("Вероятностное событие произошло!")
+    }
+}
+```
+
+### TimeAPI (объект `time`)
+
+Работа со временем и датой.
+
+```kotlin
+var now = time.now()          // "2026-04-03T14:30:45.123"
+var current = time.time()     // "14:30:45"
+var date = time.date()        // "2026-04-03"
+var hour = time.hour()        // 14
+var minute = time.minute()    // 30
+```
+
+**Методы:** `now()`, `time()`, `date()`, `hour()`, `minute()`, `second()`, `dayOfMonth()`, `month()`, `year()`, `dayOfWeek()`
+
+### FileAPI (объект `file`)
+
+Чтение и запись файлов.
+
+```kotlin
+var content = file.readFile("data.txt")    // Чтение файла
+file.writeFile("output.txt", "Hello")      // Запись файла
+file.appendFile("log.txt", "Event\n")      // Добавление в конец
+var exists = file.exists("file.txt")       // Проверка наличия
+```
+
+**Методы:** `readFile()`, `writeFile()`, `appendFile()`, `readLines()`, `exists()`, `delete()`, `size()`, `isDirectory()`, `isFile()`, `listFiles()`, `mkdir()`
+
+### ConsoleAPI (объект `console`)
+
+Форматирование вывода в консоль с цветами и стилями.
+
+```kotlin
+console.printRed("Error message")     // Красный текст
+console.printGreen("Success!")        // Зелёный текст
+console.printBlue("Info")             // Синий текст
+console.separator()                   // Разделитель
+console.clear()                       // Очистка экрана
+```
+
+**Методы:** `printRed()`, `printGreen()`, `printBlue()`, `printYellow()`, `printMagenta()`, `printCyan()`, `clear()`, `println()`, `newLine()`, `separator()`, `centerText()`
+
 ---
 
 ## 🎯 Встроенные функции
@@ -793,6 +936,93 @@ typeof(stringValue) = String
 === Математические операции ===
 Int + Float = 13.5 [Float]
 Float * Double = 9.51398 [Float]
+```
+
+### Пример 12: Использование MathAPI, StringAPI, RandomAPI
+
+```kotlin
+function main() {
+    world.send("=== Демонстрация библиотечных API ===")
+    
+    // Математика
+    world.send("")
+    world.send("--- MathAPI ---")
+    var sqrt = math.sqrt(16)
+    var pow = math.pow(2, 10)
+    var rounded = math.round(3.7)
+    
+    world.send("sqrt(16) = " + sqrt)
+    world.send("2^10 = " + pow)
+    world.send("round(3.7) = " + rounded)
+    world.send("π = " + math.pi())
+    
+    // Строки
+    world.send("")
+    world.send("--- StringAPI ---")
+    var text = "Hello StoryScript"
+    var length = string.length(text)
+    var upper = string.toUpperCase(text)
+    var lower = string.toLowerCase(text)
+    
+    world.send("Text: " + text)
+    world.send("Length: " + length)
+    world.send("UpperCase: " + upper)
+    world.send("LowerCase: " + lower)
+    world.send("Contains 'Script': " + string.contains(text, "Script"))
+    
+    // Случайные числа
+    world.send("")
+    world.send("--- RandomAPI ---")
+    var dice1 = random.dice()
+    var dice2 = random.dice()
+    var random100 = random.nextInt(100)
+    
+    world.send("Dice 1: " + dice1)
+    world.send("Dice 2: " + dice2)
+    world.send("Random (0-99): " + random100)
+    world.send("Total: " + (dice1 + dice2))
+    
+    // Время
+    world.send("")
+    world.send("--- TimeAPI ---")
+    var currentTime = time.time()
+    var currentDate = time.date()
+    var hour = time.hour()
+    var minute = time.minute()
+    
+    world.send("Time: " + currentTime)
+    world.send("Date: " + currentDate)
+    world.send("Hour: " + hour + ", Minute: " + minute)
+}
+```
+
+**Результат:**
+```
+=== Демонстрация библиотечных API ===
+
+--- MathAPI ---
+sqrt(16) = 4.0
+2^10 = 1024.0
+round(3.7) = 4.0
+π = 3.141592653589793
+
+--- StringAPI ---
+Text: Hello StoryScript
+Length: 16
+UpperCase: HELLO STORYSCRIPT
+LowerCase: hello storyscript
+Contains 'Script': true
+
+--- RandomAPI ---
+Dice 1: 4
+Dice 2: 2
+Random (0-99): 47
+Total: 6
+
+--- TimeAPI ---
+Time: 14:30:45
+Date: 2026-04-03
+Hour: 14, Minute: 30
 ```
 
 ---

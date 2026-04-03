@@ -7,6 +7,12 @@ import org.example.interpreter.Interpreter
 import org.example.cs.WorldAPI
 import org.example.cs.EntityAPI
 import org.example.cs.ScannerAPI
+import org.example.cs.MathAPI
+import org.example.cs.StringAPI
+import org.example.cs.RandomAPI
+import org.example.cs.TimeAPI
+import org.example.cs.FileAPI
+import org.example.cs.ConsoleAPI
 
 fun main(args: Array<String>) {
     val scriptPath = if (args.isNotEmpty()) {
@@ -33,6 +39,14 @@ fun main(args: Array<String>) {
         
         val scannerAPI = ScannerAPI()
         interpreter.addGlobalObject("input", scannerAPI)
+        
+        // Регистрация API объектов
+        interpreter.addGlobalObject("math", MathAPI())
+        interpreter.addGlobalObject("string", StringAPI())
+        interpreter.addGlobalObject("random", RandomAPI())
+        interpreter.addGlobalObject("time", TimeAPI())
+        interpreter.addGlobalObject("file", FileAPI())
+        interpreter.addGlobalObject("console", ConsoleAPI())
 
         interpreter.addGlobalFunction("entity") { args ->
             if (args.isNotEmpty() && args[0] is org.example.interpreter.NumberValue) {

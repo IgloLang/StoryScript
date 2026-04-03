@@ -1,4 +1,4 @@
 function main() {
-    var intValue = float(input("Введите целое число: "))
-    world.send(intValue)
+    var rand1 = random.random()
+    world.send("Результат: " + rand1)
 }
