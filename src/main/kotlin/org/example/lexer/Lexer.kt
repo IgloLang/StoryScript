@@ -33,8 +33,8 @@ class Lexer(private val input: String) {
             
             val currentChar = input[position]
             
-            // Comments: -- или //
-            if ((currentChar == '-' && peek() == '-') || (currentChar == '/' && peek() == '/')) {
+            // Comments: // (C-style only)
+            if (currentChar == '/' && peek() == '/') {
                 skipComment()
                 continue
             }
