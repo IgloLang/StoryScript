@@ -348,6 +348,77 @@ entity1.send()         // [entity] 10
 entity2.send()         // [entity] 20
 ```
 
+### `input(prompt: String): String`
+
+Выводит сообщение и ждёт ввода строки от пользователя.
+
+```kotlin
+var name = input("Введите ваше имя: ")
+world.send("Привет, " + name)
+```
+
+### `int(value): Int`
+
+Конвертирует значение в целое число.
+
+```kotlin
+var numStr = "42"
+var num = int(numStr)           // 42
+var num2 = int(3.14)            // 3
+var num3 = int(true)            // 1
+var num4 = int(false)           // 0
+```
+
+### `float(value): Float` / `double(value): Double`
+
+Конвертирует значение в число с плавающей точкой.
+
+```kotlin
+var floatNum = float("3.14")    // 3.14
+var doubleNum = double(42)      // 42.0
+var dbl = double("2.71828")     // 2.71828
+```
+
+### `str(value): String`
+
+Конвертирует значение в строку.
+
+```kotlin
+var str1 = str(42)              // "42"
+var str2 = str(3.14)            // "3.14"
+var str3 = str(true)            // "true"
+```
+
+### `typeof(value): String`
+
+Возвращает строку с типом значения. Помощь при отладке типов данных.
+
+```kotlin
+var num = 42
+var floatNum = 3.14
+var text = "hello"
+
+world.send(typeof(num))         // "Int"
+world.send(typeof(floatNum))    // "Float"
+world.send(typeof(text))        // "String"
+world.send(typeof(true))        // "Boolean"
+world.send(typeof(null))        // "Null"
+```
+
+### `format(value): String`
+
+Форматирует значение со указанием его типа в формате `значение [Тип]`.
+
+```kotlin
+var intVal = 42
+var floatVal = 3.14
+var strVal = "text"
+
+world.send(format(intVal))      // "42 [Int]"
+world.send(format(floatVal))    // "3.14 [Float]"
+world.send(format(strVal))      // "text [String]"
+```
+
 ---
 
 ## 📖 Примеры программ
@@ -569,6 +640,116 @@ function main() {
 After damage: HP = 75
 Status: Wounded
 Final HP: 150
+```
+
+### Пример 10: Ввод данных и конвертация типов
+
+```kotlin
+function main() {
+    world.send("=== Калькулятор ===")
+    
+    // Ввод первого числа
+    var num1Str = input("Введите первое число: ")
+    var num1 = float(num1Str)
+    
+    // Ввод второго числа
+    var num2Str = input("Введите второе число: ")
+    var num2 = float(num2Str)
+    
+    // Вычисления
+    var sum = num1 + num2
+    var product = num1 * num2
+    var difference = num1 - num2
+    
+    // Вывод результатов
+    world.send("")
+    world.send("Результаты:")
+    world.send("Сумма: " + sum)
+    world.send("Произведение: " + product)
+    world.send("Разность: " + difference)
+    
+    // Конвертация в строку для вывода
+    var resultStr = str(sum)
+    world.send("Сумма как строка: " + resultStr)
+}
+```
+
+**Пример работы:**
+```
+=== Калькулятор ===
+Введите первое число: 15.5
+Введите второе число: 3.2
+
+Результаты:
+Сумма: 18.7
+Произведение: 49.6
+Разность: 12.3
+Сумма как строка: 18.7
+```
+
+### Пример 11: Работа с типами данных (Int, Float, Double, String)
+
+```kotlin
+function main() {
+    world.send("=== Проверка типов данных ===")
+    
+    // Ввод разных типов
+    var intValue = int(input("Введите целое число: "))
+    var floatValue = float(input("Введите число с точкой (Float): "))
+    var doubleValue = double(input("Введите число двойной точности (Double): "))
+    var stringValue = input("Введите текст: ")
+    
+    world.send("")
+    world.send("=== Введённые значения и их типы ===")
+    
+    // Вывод с форматированием и типами
+    world.send("Int: " + format(intValue))
+    world.send("Float: " + format(floatValue))
+    world.send("Double: " + format(doubleValue))
+    world.send("String: " + format(stringValue))
+    
+    // Проверка типов через typeof
+    world.send("")
+    world.send("=== Результаты typeof ===")
+    world.send("typeof(intValue) = " + typeof(intValue))
+    world.send("typeof(floatValue) = " + typeof(floatValue))
+    world.send("typeof(doubleValue) = " + typeof(doubleValue))
+    world.send("typeof(stringValue) = " + typeof(stringValue))
+    
+    // Вычисления с разными типами
+    world.send("")
+    world.send("=== Математические операции ===")
+    var sum = intValue + floatValue
+    var product = floatValue * doubleValue
+    
+    world.send("Int + Float = " + format(sum))
+    world.send("Float * Double = " + format(product))
+}
+```
+
+**Пример работы:**
+```
+=== Проверка типов данных ===
+Введите целое число: 10
+Введите число с точкой (Float): 3.5
+Введите число двойной точности (Double): 2.71828
+Введите текст: Hello
+
+=== Введённые значения и их типы ===
+Int: 10 [Int]
+Float: 3.5 [Float]
+Double: 2.71828 [Float]
+String: Hello [String]
+
+=== Результаты typeof ===
+typeof(intValue) = Int
+typeof(floatValue) = Float
+typeof(doubleValue) = Float
+typeof(stringValue) = String
+
+=== Математические операции ===
+Int + Float = 13.5 [Float]
+Float * Double = 9.51398 [Float]
 ```
 
 ---
