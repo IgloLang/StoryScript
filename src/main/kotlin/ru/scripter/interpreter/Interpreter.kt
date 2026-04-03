@@ -7,18 +7,18 @@ import kotlin.math.floor
 // ============== Interpreter ==============
 // Интерпретатор исполняет AST и вычисляет результаты
 class Interpreter {
-    private val globalEnv = Environment()
+    private val globalEnv = _root_ide_package_.org.example.interpreter.Environment()
     internal var currentEnv = globalEnv
     
     fun addGlobalObject(name: String, obj: Any) {
-        globalEnv.define(name, ObjectValue(obj))
+        globalEnv.define(name, _root_ide_package_.org.example.interpreter.ObjectValue(obj))
     }
     
-    fun addGlobalFunction(name: String, function: (List<Value>) -> Value) {
-        globalEnv.define(name, BuiltinFunction(function))
+    fun addGlobalFunction(name: String, function: (List<org.example.interpreter.Value>) -> org.example.interpreter.Value) {
+        globalEnv.define(name, _root_ide_package_.org.example.interpreter.BuiltinFunction(function))
     }
     
-    internal fun executeBlock(block: BlockStatement) {
+    internal fun executeBlock(block: org.example.parser.BlockStatement) {
         for (stmt in block.statements) {
             try {
                 execute(stmt)

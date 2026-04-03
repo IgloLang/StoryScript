@@ -10,7 +10,7 @@ class WorldAPI {
     fun send(name: String, text: String) {
         println("[$name] $text")
     }
-    fun time(timer: Int, runnable: ActiveRunnable) {
+    fun time(timer: Int, runnable: org.example.interpreter.ActiveRunnable) {
         TimeUnit.SECONDS.sleep(timer.toLong())
         runnable.run()
     }

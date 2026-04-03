@@ -4,4 +4,4 @@ package org.example.interpreter
 // Исключения для управления потоком выполнения (break, return)
 
 class BreakException : Exception()
-class ReturnException(val value: Value) : Exception()
+class ReturnException(val value: org.example.interpreter.Value) : Exception()

@@ -22,30 +22,34 @@ fun main(args: Array<String>) {
     
     try {
         val source = scriptFile.readText()
-        val lexer = Lexer(source)
+        val lexer = _root_ide_package_.org.example.lexer.Lexer(source)
         val tokens = lexer.tokenize()
-        val parser = Parser(tokens)
+        val parser = _root_ide_package_.org.example.parser.Parser(tokens)
         val program = parser.parse()
-        val interpreter = Interpreter()
-        interpreter.addGlobalObject("world", WorldAPI())
+        val interpreter = _root_ide_package_.org.example.interpreter.Interpreter()
+        interpreter.addGlobalObject("world", _root_ide_package_.org.example.cs.WorldAPI())
         
-        val scannerAPI = ScannerAPI()
+        val scannerAPI = _root_ide_package_.org.example.cs.ScannerAPI()
         interpreter.addGlobalObject("input", scannerAPI)
         
         // Регистрация API объектов
-        interpreter.addGlobalObject("math", MathAPI())
-        interpreter.addGlobalObject("string", StringAPI())
-        interpreter.addGlobalObject("random", RandomAPI())
-        interpreter.addGlobalObject("time", TimeAPI())
-        interpreter.addGlobalObject("file", FileAPI())
-        interpreter.addGlobalObject("console", ConsoleAPI())
+        interpreter.addGlobalObject("math", _root_ide_package_.org.example.cs.MathAPI())
+        interpreter.addGlobalObject("string", _root_ide_package_.org.example.cs.StringAPI())
+        interpreter.addGlobalObject("random", _root_ide_package_.org.example.cs.RandomAPI())
+        interpreter.addGlobalObject("time", _root_ide_package_.org.example.cs.TimeAPI())
+        interpreter.addGlobalObject("file", _root_ide_package_.org.example.cs.FileAPI())
+        interpreter.addGlobalObject("console", _root_ide_package_.org.example.cs.ConsoleAPI())
 
         interpreter.addGlobalFunction("entity") { args ->
             if (args.isNotEmpty() && args[0] is org.example.interpreter.NumberValue) {
                 val entityValue = (args[0] as org.example.interpreter.NumberValue).value.toInt()
-                org.example.interpreter.ObjectValue(EntityAPI(entityValue))
+                _root_ide_package_.org.example.interpreter.ObjectValue(
+                    _root_ide_package_.org.example.cs.EntityAPI(
+                        entityValue
+                    )
+                )
             } else {
-                org.example.interpreter.NullValue
+                _root_ide_package_.org.example.interpreter.NullValue
             }
         }
         
@@ -56,7 +60,7 @@ fun main(args: Array<String>) {
             } else {
                 ""
             }
-            org.example.interpreter.StringValue(scannerAPI.readLine(prompt))
+            _root_ide_package_.org.example.interpreter.StringValue(scannerAPI.readLine(prompt))
         }
         
         // Функция для конвертации в Int
@@ -78,9 +82,9 @@ fun main(args: Array<String>) {
                     }
                     else -> 0
                 }
-                org.example.interpreter.NumberValue(value.toDouble())
+                _root_ide_package_.org.example.interpreter.NumberValue(value.toDouble())
             } else {
-                org.example.interpreter.NumberValue(0.0)
+                _root_ide_package_.org.example.interpreter.NumberValue(0.0)
             }
         }
         
@@ -100,9 +104,9 @@ fun main(args: Array<String>) {
                     }
                     else -> 0.0
                 }
-                org.example.interpreter.NumberValue(value)
+                _root_ide_package_.org.example.interpreter.NumberValue(value)
             } else {
-                org.example.interpreter.NumberValue(0.0)
+                _root_ide_package_.org.example.interpreter.NumberValue(0.0)
             }
         }
         
@@ -122,18 +126,18 @@ fun main(args: Array<String>) {
                     }
                     else -> 0.0
                 }
-                org.example.interpreter.NumberValue(value)
+                _root_ide_package_.org.example.interpreter.NumberValue(value)
             } else {
-                org.example.interpreter.NumberValue(0.0)
+                _root_ide_package_.org.example.interpreter.NumberValue(0.0)
             }
         }
         
         // Функция для конвертации в String
         interpreter.addGlobalFunction("str") { args ->
             if (args.isNotEmpty()) {
-                org.example.interpreter.StringValue(args[0].toStringValue())
+                _root_ide_package_.org.example.interpreter.StringValue(args[0].toStringValue())
             } else {
-                org.example.interpreter.StringValue("null")
+                _root_ide_package_.org.example.interpreter.StringValue("null")
             }
         }
         
@@ -155,9 +159,9 @@ fun main(args: Array<String>) {
                     is org.example.interpreter.NullValue -> "Null"
                     else -> "Unknown"
                 }
-                org.example.interpreter.StringValue(typeName)
+                _root_ide_package_.org.example.interpreter.StringValue(typeName)
             } else {
-                org.example.interpreter.StringValue("Unknown")
+                _root_ide_package_.org.example.interpreter.StringValue("Unknown")
             }
         }
         
@@ -177,9 +181,9 @@ fun main(args: Array<String>) {
                     is org.example.interpreter.StringValue -> "String"
                     else -> "Unknown"
                 }
-                org.example.interpreter.StringValue("$valueStr [$type]")
+                _root_ide_package_.org.example.interpreter.StringValue("$valueStr [$type]")
             } else {
-                org.example.interpreter.StringValue("null [Null]")
+                _root_ide_package_.org.example.interpreter.StringValue("null [Null]")
             }
         }
         

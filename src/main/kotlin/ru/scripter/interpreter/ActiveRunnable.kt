@@ -6,17 +6,17 @@ fun interface ActiveRunnable {
 
 // Internal class to wrap script blocks as ActiveRunnable
 class ScriptActiveRunnable(
-    private val block: FunctionValue,
-    private val interpreter: Interpreter,
-    private val closure: Environment
-) : ActiveRunnable {
+    private val block: org.example.interpreter.FunctionValue,
+    private val interpreter: org.example.interpreter.Interpreter,
+    private val closure: org.example.interpreter.Environment
+) : org.example.interpreter.ActiveRunnable {
     override fun run() {
         val previousEnv = interpreter.currentEnv
-        interpreter.currentEnv = Environment(closure)
+        interpreter.currentEnv = _root_ide_package_.org.example.interpreter.Environment(closure)
         
         try {
             interpreter.executeBlock(block.body)
-        } catch (e: ReturnException) {
+        } catch (e: org.example.interpreter.ReturnException) {
             // Catch return from block
         } finally {
             interpreter.currentEnv = previousEnv
