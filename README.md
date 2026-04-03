@@ -529,6 +529,500 @@ script.st (исходный код)
 
 ---
 
+## 🔧 Руководство для разработчиков: Создание собственных API
+
+### Основная идея
+
+Вы можете создавать свои Java классы и использовать их из StoryScript скриптов. Интерпретатор автоматически конвертирует типы и вызывает методы.
+
+### Шаг 1: Создание Java класса
+
+Создайте обычный Kotlin/Java класс в папке `src/main/kotlin/org/example/cs/`:
+
+**YourAPI.kt:**
+```kotlin
+package org.example.cs
+
+class YourAPI {
+    var name: String = "Default"
+    var value: Int = 0
+    
+    fun send(message: String) {
+        println("[YourAPI] $message")
+    }
+    
+    fun calculate(a: Int, b: Int): Int {
+        return a + b
+    }
+    
+    fun getValue(): Int {
+        return value
+    }
+}
+```
+
+### Шаг 2: Регистрация объекта в интерпретаторе
+
+Отредактируйте `Main.kt` и добавьте ваш объект:
+
+```kotlin
+fun main(args: Array<String>) {
+    // ... существующий код ...
+    
+    val interpreter = Interpreter()
+    interpreter.addGlobalObject("world", WorldAPI())
+    
+    // Добавьте вашу API
+    interpreter.addGlobalObject("api", YourAPI())
+    
+    // ... остальной код ...
+}
+```
+
+### Шаг 3: Использование в скриптах
+
+Теперь вы можете использовать объект в скриптах:
+
+```kotlin
+function main() {
+    api.send("Hello from script!")
+    var result = api.calculate(5, 3)
+    world.send("Result: " + result)
+}
+```
+
+---
+
+## 📝 Примеры собственных API
+
+### Пример 1: Simple Logger API
+
+**LoggerAPI.kt:**
+```kotlin
+package org.example.cs
+
+class LoggerAPI {
+    private var logLevel: String = "INFO"
+    
+    fun info(message: String) {
+        println("[INFO] $message")
+    }
+    
+    fun warn(message: String) {
+        println("[WARN] $message")
+    }
+    
+    fun error(message: String) {
+        println("[ERROR] $message")
+    }
+    
+    fun setLevel(level: String) {
+        logLevel = level
+    }
+    
+    fun getLevel(): String {
+        return logLevel
+    }
+}
+```
+
+**Использование:**
+```kotlin
+function main() {
+    logger.setLevel("DEBUG")
+    logger.info("Application started")
+    logger.error("Something went wrong")
+}
+```
+
+**Main.kt:**
+```kotlin
+interpreter.addGlobalObject("logger", LoggerAPI())
+```
+
+---
+
+### Пример 2: Math API с несколькими методами
+
+**MathAPI.kt:**
+```kotlin
+package org.example.cs
+
+class MathAPI {
+    fun sqrt(value: Double): Double {
+        return Math.sqrt(value)
+    }
+    
+    fun pow(base: Double, exp: Double): Double {
+        return Math.pow(base, exp)
+    }
+    
+    fun max(a: Int, b: Int): Int {
+        return if (a > b) a else b
+    }
+    
+    fun min(a: Int, b: Int): Int {
+        return if (a < b) a else b
+    }
+    
+    fun abs(value: Double): Double {
+        return Math.abs(value)
+    }
+}
+```
+
+**Использование:**
+```kotlin
+function main() {
+    var result1 = math.sqrt(16)
+    world.send("sqrt(16) = " + result1)
+    
+    var result2 = math.max(10, 20)
+    world.send("max(10, 20) = " + result2)
+}
+```
+
+---
+
+### Пример 3: Game Entity API с состоянием
+
+**GameEntityAPI.kt:**
+```kotlin
+package org.example.cs
+
+class GameEntityAPI(val id: Int) {
+    var health: Int = 100
+    var mana: Int = 50
+    var level: Int = 1
+    var name: String = "Entity_$id"
+    
+    fun takeDamage(damage: Int) {
+        health = health - damage
+        if (health < 0) health = 0
+    }
+    
+    fun heal(amount: Int) {
+        health = health + amount
+        if (health > 100) health = 100
+    }
+    
+    fun levelUp() {
+        level = level + 1
+        health = health + 10
+        mana = mana + 5
+    }
+    
+    fun getStatus(): String {
+        return "[$name] HP: $health, Mana: $mana, Level: $level"
+    }
+    
+    fun isAlive(): Boolean {
+        return health > 0
+    }
+}
+```
+
+**Использование:**
+```kotlin
+function main() {
+    var player = entity(1)
+    player.takeDamage(20)
+    world.send(player.getStatus())
+    
+    player.heal(10)
+    world.send(player.getStatus())
+    
+    if (player.isAlive()) {
+        world.send("Player still alive!")
+    }
+}
+```
+
+**Main.kt:**
+```kotlin
+interpreter.addGlobalFunction("entity") { args ->
+    if (args.isNotEmpty() && args[0] is org.example.interpreter.NumberValue) {
+        val id = (args[0] as org.example.interpreter.NumberValue).value.toInt()
+        org.example.interpreter.ObjectValue(GameEntityAPI(id))
+    } else {
+        org.example.interpreter.NullValue
+    }
+}
+```
+
+---
+
+## 🔄 Встроенные функции (Builtin Functions)
+
+Вы можете создавать встроенные функции, которые вызываются как обычные функции, но реализованы на Kotlin.
+
+### Создание встроенной функции
+
+В `Main.kt`:
+
+```kotlin
+// Функция без параметров
+interpreter.addGlobalFunction("random") { args ->
+    org.example.interpreter.NumberValue(Math.random() * 100)
+}
+
+// Функция с параметрами
+interpreter.addGlobalFunction("square") { args ->
+    if (args.isNotEmpty() && args[0] is org.example.interpreter.NumberValue) {
+        val value = (args[0] as org.example.interpreter.NumberValue).value
+        org.example.interpreter.NumberValue(value * value)
+    } else {
+        org.example.interpreter.NullValue
+    }
+}
+
+// Функция с несколькими параметрами
+interpreter.addGlobalFunction("multiply") { args ->
+    if (args.size >= 2 && 
+        args[0] is org.example.interpreter.NumberValue &&
+        args[1] is org.example.interpreter.NumberValue) {
+        val a = (args[0] as org.example.interpreter.NumberValue).value
+        val b = (args[1] as org.example.interpreter.NumberValue).value
+        org.example.interpreter.NumberValue(a * b)
+    } else {
+        org.example.interpreter.NullValue
+    }
+}
+```
+
+**Использование в скриптах:**
+```kotlin
+function main() {
+    var r = random()
+    var s = square(5)
+    var m = multiply(3, 7)
+    
+    world.send("Random: " + r)
+    world.send("Square: " + s)
+    world.send("Multiply: " + m)
+}
+```
+
+---
+
+## 🔀 Конвертация типов
+
+Интерпретатор автоматически конвертирует типы между StoryScript и Java:
+
+| StoryScript | Java | Пример |
+|-------------|------|--------|
+| `10` | `Int` | `api.setCount(10)` |
+| `"text"` | `String` | `api.send("text")` |
+| `true` | `Boolean` | `api.setState(true)` |
+| `null` | `null` | `api.value` → `null` |
+
+### Поддерживаемые типы методов
+
+```kotlin
+// ✅ Поддерживается
+fun method1(value: Int) {}
+fun method2(value: String) {}
+fun method3(value: Boolean) {}
+fun method4(): Int { return 42 }
+fun method5(): String { return "text" }
+fun method6(): Boolean { return true }
+
+// ❌ Не поддерживается напрямую
+fun method7(list: List<Int>) {}  // Нужна обработка
+fun method8(obj: CustomClass) {} // Нужна регистрация
+```
+
+---
+
+## 🎯 Best Practices
+
+### 1. Простота интерфейса
+Делайте методы простыми и понятными:
+
+```kotlin
+// ✅ Хорошо
+fun takeDamage(amount: Int)
+fun getHealth(): Int
+fun isAlive(): Boolean
+
+// ❌ Плохо
+fun complexOperation(a: Int, b: Int, c: Int, d: Int, e: Int)
+fun doMultipleThings()
+```
+
+### 2. Постоянство состояния
+Изменяйте состояние объекта, не создавайте новые:
+
+```kotlin
+// ✅ Хорошо
+fun takeDamage(amount: Int) {
+    health = health - amount
+}
+
+// ❌ Плохо
+fun takeDamage(amount: Int): GameEntity {
+    return GameEntity(health - amount)
+}
+```
+
+### 3. Возвращаемые значения
+Возвращайте примитивные типы:
+
+```kotlin
+// ✅ Хорошо
+fun getStatus(): String { return "..." }
+fun getHealth(): Int { return health }
+
+// ⚠️ Требует обработки
+fun getEntity(): Entity { return Entity() }
+```
+
+### 4. Null безопасность
+Используйте non-null типы:
+
+```kotlin
+// ✅ Хорошо
+fun send(message: String)
+
+// ⚠️ Может вызвать NPE
+fun send(message: String?)
+```
+
+### 5. Документируйте API
+Добавляйте комментарии:
+
+```kotlin
+class PlayerAPI {
+    /**
+     * Наносит урон персонажу
+     * @param amount Количество урона (положительное число)
+     */
+    fun takeDamage(amount: Int) {
+        health = health - amount
+    }
+    
+    /**
+     * Получить текущее здоровье
+     * @return Текущее здоровье (0-100)
+     */
+    fun getHealth(): Int {
+        return health
+    }
+}
+```
+
+---
+
+## 🧪 Тестирование своего API
+
+Создайте тестовый скрипт:
+
+```kotlin
+function main() {
+    // Инициализация
+    var obj = entity(1)
+    world.send("Object created")
+    
+    // Тестирование методов
+    obj.takeDamage(10)
+    world.send("Health after damage: " + obj.getHealth())
+    
+    obj.heal(5)
+    world.send("Health after healing: " + obj.getHealth())
+    
+    // Проверка состояния
+    if (obj.isAlive()) {
+        world.send("Entity is alive")
+    } else {
+        world.send("Entity is dead")
+    }
+}
+```
+
+---
+
+## 📋 Чек-лист для добавления API
+
+- [ ] Создан класс в папке `org.example.cs`
+- [ ] Добавлены public методы для вызова из скриптов
+- [ ] Зарегистрирован объект в `Main.kt` через `addGlobalObject()`
+- [ ] Или зарегистрирована функция через `addGlobalFunction()`
+- [ ] Типы параметров поддерживаются (Int, String, Boolean)
+- [ ] Не используются null-able типы
+- [ ] Написан пример использования
+- [ ] Документация обновлена в README
+
+---
+
+## 🐛 Отладка собственных API
+
+Если метод не вызывается, проверьте:
+
+1. **Имя метода** совпадает и в коде, и в скрипте
+2. **Типы параметров** поддерживаются интерпретатором
+3. **Объект зарегистрирован** в `Main.kt`
+4. **Нет опечаток** в имени объекта
+
+Пример ошибки:
+```kotlin
+// Main.kt
+interpreter.addGlobalObject("myapi", MyAPI())
+
+// script.st
+function main() {
+    myapi.method()  // ✓ Правильно
+    // mapi.method()  // ✗ Ошибка: Undefined variable: mapi
+}
+```
+
+---
+
+## 📚 Расширенные техники
+
+### Сохранение состояния между вызовами
+
+```kotlin
+class CounterAPI {
+    private var count = 0
+    
+    fun increment() {
+        count++
+    }
+    
+    fun getCount(): Int {
+        return count
+    }
+}
+```
+
+**Использование:**
+```kotlin
+function main() {
+    counter.increment()
+    counter.increment()
+    counter.increment()
+    world.send("Count: " + counter.getCount())  // 3
+}
+```
+
+### Взаимодействие между объектами
+
+```kotlin
+class PlayerAPI {
+    var inventory: List<String> = listOf()
+}
+
+class InventoryAPI {
+    fun add(item: String) {
+        // Управление инвентарём
+    }
+}
+```
+
+---
+
+
+
 ## 📝 Комментарии
 
 Поддерживаются два типа комментариев:
