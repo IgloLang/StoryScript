@@ -1,6 +1,5 @@
 function main() {
-    var counter = 0
-    while (true) {
-        world.send("test")
+    for (var i = 0; i < 10; i++) {
+        world.send(i)
     }
 }

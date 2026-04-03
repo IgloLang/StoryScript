@@ -1,101 +1,116 @@
-# StoryScript
+# 🎭 StoryScript
 
-Интерпретатор для кастомного языка программирования **StoryScript**, написанный на Kotlin. Позволяет выполнять скрипты с поддержкой функций, переменных, управления потоком и интеграции с Java API.
+**Язык программирования для создания интерактивных скриптов**
 
-## Возможности
+Интерпретатор StoryScript позволяет выполнять скрипты с полной поддержкой функций, переменных, управления потоком и интеграции с Java объектами. Написан на **Kotlin** с использованием классического подхода: лексер → парсер → интерпретатор.
 
-- **Функции** — определение и вызов функций с параметрами
-- **Переменные** — динамическая типизация
-- **Операторы** — арифметические, логические, сравнения, инкремент/декремент
-- **Управление потоком** — if/else, while, for, switch, break, return
-- **Блоки кода** — lambda-подобные блоки с поддержкой `ActiveRunnable`
-- **Интеграция с Java** — вызов методов Java объектов с автоматической конвертацией типов
-- **Встроенные функции** — `entity()` конструктор и другие
-- **Встроенные API** — WorldAPI, EntityAPI
+---
 
-## Установка и запуск
+## ⚡ Быстрый старт
+
+### Требования
+- Java 11+
+- Gradle (входит в проект)
+
+### Установка и запуск
 
 ```bash
+# Клонировать/открыть проект
+cd StoryScript
+
 # Сборка проекта
 ./gradlew build
 
 # Запуск скрипта
 ./gradlew run --args="script.st"
-
-# Или напрямую
-java -jar build/libs/StoryScript.jar script.st
 ```
 
-## Типы данных
+### Первый скрипт
 
-StoryScript поддерживает следующие типы:
+`script.st`:
+```kotlin
+function main() {
+    world.send("Hello, StoryScript!")
+}
+```
 
-| Тип | Описание | Пример |
+Результат:
+```
+Hello, StoryScript!
+```
+
+---
+
+## 📚 Типы данных
+
+| Тип | Описание | Примеры |
 |-----|---------|---------|
-| **Число** | Целые и дробные числа | `42`, `3.14`, `-5` |
-| **Строка** | Текст в двойных кавычках | `"Hello"`, `"test"` |
-| **Булево** | true или false | `true`, `false` |
+| **Number** | Int, Float | `42`, `3.14`, `-5` |
+| **String** | Текст | `"Hello"`, `'Single quotes'` |
+| **Boolean** | Истину/ложь | `true`, `false` |
 | **null** | Нулевое значение | `null` |
-| **Функция** | Определенная функция | `function foo() {}` |
-| **Объект** | Java объект | `entity(1)`, `world` |
+| **Function** | Функция | `function foo() {}` |
+| **Object** | Java объект | `entity(10)`, `world` |
 
-## Синтаксис
+---
 
-### 1. Переменные
+## 🔤 Синтаксис и операторы
+
+### Переменные
 
 ```kotlin
-// Объявление с инициализацией
-var name = "John"
-var age = 30
+// Объявление
+var name = "Alice"
+var age = 25
 var active = true
+var value = null
 
-// Переменные могут менять тип
-var x = 5
-x = "text"  // Допустимо
+// Динамическая типизация
+var x = 10
+x = "text"        // Допустимо, тип меняется
 ```
 
-### 2. Функции
+### Функции
 
 ```kotlin
-// Функция без параметров
-function greet() {
-    world.send("Hello!")
+// Определение функции
+function greet(name) {
+    world.send("Hello, " + name)
 }
 
-// Функция с параметрами
+// С return
 function add(a, b) {
-    var result = a + b
-    return result
+    return a + b
 }
 
-// Функция с return
-function getValue() {
-    return 42
+// Без параметров
+function sayHi() {
+    world.send("Hi!")
 }
 
-// Вызов функции
-greet()
-var sum = add(5, 3)  // sum = 8
+// Вызов
+greet("Bob")
+var sum = add(5, 3)
 ```
 
-### 3. Условные операторы
+### Условные операторы
 
-#### if/else
+#### if/else if/else
 ```kotlin
-if (age > 18) {
-    world.send("Adult")
-} else if (age > 13) {
-    world.send("Teenager")
-} else {
+if (age < 13) {
     world.send("Child")
+} else if (age < 18) {
+    world.send("Teen")
+} else {
+    world.send("Adult")
 }
 ```
 
-#### switch
+#### switch/case
 ```kotlin
 switch (status) {
     case 1:
-        world.send("Sleeping")
+        world.send("Idle")
         break
     case 2:
         world.send("Working")
@@ -105,12 +120,12 @@ switch (status) {
 }
 ```
 
-### 4. Циклы
+### Циклы
 
 #### while
 ```kotlin
 var i = 0
-while (i < 10) {
+while (i < 5) {
     world.send(i)
     i = i + 1
 }
@@ -118,199 +133,214 @@ while (i < 10) {
 
 #### for
 ```kotlin
-// Классический for
+// Классический for с инициализацией
 for (var i = 0; i < 5; i++) {
     world.send(i)
 }
 
-// For без инициализации
-for (; i < 10; i++) {
-    world.send(i)
+// В скобках: init; condition; update
+for (var x = 10; x > 0; x--) {
+    world.send(x)
 }
 ```
 
-#### break и continue
+#### break
 ```kotlin
-var counter = 0
 while (true) {
-    if (counter == 5) {
+    if (condition) {
         break  // Выход из цикла
     }
-    counter = counter + 1
 }
 ```
 
-### 5. Арифметические операторы
+### Арифметические операторы
 
 ```kotlin
 var a = 10
 var b = 3
 
-var add = a + b        // 13 (сложение)
-var sub = a - b        // 7 (вычитание)
-var mul = a * b        // 30 (умножение)
-var div = a / b        // 3.333... (деление)
-var floor_div = a // b // 3 (целое деление)
-var mod = a % b        // 1 (остаток от деления)
-var power = 2 ^ 3      // 8 (степень)
+a + b        // 13 (сложение)
+a - b        // 7 (вычитание)
+a * b        // 30 (умножение)
+a / b        // 3.333... (деление)
+a // b       // 3 (целое деление)
+a % b        // 1 (остаток)
+2 ^ 3        // 8 (степень)
 
-// Унарные операторы
-var neg = -5           // -5
-var pos = +5           // 5
+-a           // -10 (унарный минус)
++b           // 3 (унарный плюс)
 ```
 
-### 6. Логические операторы
+### Логические операторы
 
 ```kotlin
-var x = true
-var y = false
+true && false    // false (И)
+true || false    // true (ИЛИ)
+!true            // false (НЕ)
 
-var and_result = x && y  // false (логическое И)
-var or_result = x || y   // true (логическое ИЛИ)
-var not_result = !x      // false (логическое НЕ)
+x && y           // Короткозамыкаемое И
+x || y           // Короткозамыкаемое ИЛИ
 ```
 
-### 7. Операторы сравнения
+### Операторы сравнения
 
 ```kotlin
-var a = 10
-var b = 5
+5 == 5           // true (равно)
+5 != 3           // true (не равно)
+5 > 3            // true (больше)
+5 < 3            // false (меньше)
+5 >= 5           // true (≥)
+5 <= 5           // true (≤)
 
-a == b   // false (равно)
-a != b   // true (не равно)
-a > b    // true (больше)
-a < b    // false (меньше)
-a >= b   // true (больше или равно)
-a <= b   // false (меньше или равно)
-
-// Строгое сравнение типов
-5 === "5"   // false (разные типы)
-5 == "5"    // true (преобразуется в числа)
+5 === "5"        // false (строгое равно, учитывает тип)
+5 == "5"         // true (мягкое равно, конвертирует)
 ```
 
-### 8. Инкремент и декремент
+### Инкремент/Декремент
 
 ```kotlin
-var count = 5
+var x = 5
 
-count++     // count = 6 (постфиксный инкремент)
-++count     // count = 7 (префиксный инкремент)
-count--     // count = 6 (постфиксный декремент)
---count     // count = 5 (префиксный декремент)
+x++              // 5 (постфиксный, вернёт старое значение)
+++x              // 7 (префиксный, вернёт новое значение)
+x--              // 7 (постфиксный)
+--x              // 5 (префиксный)
 
-// Используются в выражениях
-var a = 5
-var b = a++  // b = 5, a = 6
-var c = ++a  // c = 7, a = 7
+// В циклах
+for (var i = 0; i < 5; i++) { }
 ```
 
-### 9. Присваивание
+### Присваивание
 
 ```kotlin
 var x = 10
-x = 20        // Переприсвоение
-x = x + 5     // x = 25
+x = 20           // Переприсвоение
+x = x + 5        // x = 25
 ```
 
-### 10. Строковая конкатенация
+### Строковая конкатенация
 
 ```kotlin
-var greeting = "Hello" + " " + "World"  // "Hello World"
-var message = "Count: " + 42            // "Count: 42"
+"Hello" + " " + "World"   // "Hello World"
+"Count: " + 42            // "Count: 42"
+"Value: " + true          // "Value: true"
 ```
 
-### 11. Вложенные блоки
+### Область видимости
 
 ```kotlin
 function outer() {
-    var x = 1
+    var x = 1              // Внешняя переменная
+    
     function inner() {
-        var y = 2
-        world.send(x + y)  // 3
+        var y = 2          // Локальная переменная
+        world.send(x)      // ✓ Можно обращаться к x
+        world.send(y)      // ✓ Можно обращаться к y
     }
+    
     inner()
+    // world.send(y)       // ✗ Ошибка: y не видна здесь
 }
 ```
 
-## Встроенные функции
+---
 
-### entity(value: Int)
+## 🔌 Встроенные API
 
-Создаёт объект `EntityAPI` с указанным значением.
+### WorldAPI (объект `world`)
 
+Глобальный объект для вывода и управления временем.
+
+#### `send(text: String)`
+Выводит строку в консоль.
 ```kotlin
-var entity = entity(5)
-entity.send()           // Выведет: [entity] 5
-var value = entity.send_return()  // value = 5
+world.send("Hello")
+// Вывод: Hello
 ```
 
-## Встроенные API
-
-### WorldAPI
-
-Глобальный объект `world` для вывода и управления временем.
-
-#### Методы
-
-##### `send(text: String)`
-Выводит текст в консоль.
+#### `send(name: String, text: String)`
+Выводит строку с префиксом (именем).
 ```kotlin
-world.send("Hello, World!")
+world.send("Player", "Action")
+// Вывод: [Player] Action
 ```
-Вывод: `Hello, World!`
 
-##### `send(name: String, text: String)`
-Выводит текст с префиксом имени.
+#### `time(seconds: Int, block)`
+Ждёт N секунд, затем выполняет блок кода (lambda).
 ```kotlin
-world.send("Player", "Hello")
-```
-Вывод: `[Player] Hello`
-
-##### `time(timer: Int, runnable: ActiveRunnable)`
-Ждёт указанное количество секунд, затем выполняет блок кода.
-```kotlin
-world.time(2) {
-    world.send("2 seconds passed")
+world.send("Starting...")
+world.time(3) {
+    world.send("Finished!")
 }
+// После 3 секунд выведет: Finished!
 ```
 
 ### EntityAPI
 
-Объект сущности, создаётся через `entity(value)`.
+Создаётся функцией `entity(value: Int)`.
+
+```kotlin
+var e = entity(42)
+```
 
 #### Свойства
-
-- `name_ai: String` — имя сущности (по умолчанию `"entity"`)
-- `test: Int` — значение, переданное при создании
+- **`name_ai`** (String) — имя сущности, по умолчанию `"entity"`
+- **`test`** (Int) — значение, переданное при создании
 
 #### Методы
 
 ##### `send()`
 Выводит информацию о сущности.
 ```kotlin
-var e = entity(42)
-e.send()  // Выведет: [entity] 42
+var e = entity(100)
+e.send()
+// Вывод: [entity] 100
 ```
 
 ##### `send_return(): Int`
 Возвращает значение `test`.
 ```kotlin
-var e = entity(10)
-var result = e.send_return()  // result = 10
-world.send(result)             // Выведет: 10
+var e = entity(42)
+var value = e.send_return()    // value = 42
+world.send(value)              // Вывод: 42
 ```
 
-## Примеры программ
+---
 
-### Пример 1: Простой вывод
+## 🎯 Встроенные функции
+
+### `entity(value: Int): EntityAPI`
+
+Конструктор для создания объектов со значением.
+
+```kotlin
+var entity1 = entity(10)
+var entity2 = entity(20)
+
+entity1.send()         // [entity] 10
+entity2.send()         // [entity] 20
+```
+
+---
+
+## 📖 Примеры программ
+
+### Пример 1: Вывод текста
 
 ```kotlin
 function main() {
     world.send("Welcome to StoryScript!")
+    world.send("Program", "Started")
 }
 ```
 
-### Пример 2: Работа с переменными и функциями
+**Результат:**
+```
+Welcome to StoryScript!
+[Program] Started
+```
+
+### Пример 2: Работа с переменными
 
 ```kotlin
 function main() {
@@ -322,40 +352,15 @@ function main() {
     
     increment()
     increment()
-    world.send(counter)  // Выведет: 2
+    increment()
+    
+    world.send("Counter: " + counter)
 }
 ```
 
-### Пример 3: Таймер с блоком
+**Результат:** `Counter: 3`
 
-```kotlin
-function main() {
-    world.send("Waiting...")
-    world.time(3) {
-        world.send("Done!")
-    }
-}
-```
-
-### Пример 4: Создание и использование объектов
-
-```kotlin
-function main() {
-    var entity1 = entity(100)
-    var entity2 = entity(200)
-    
-    world.send("Entity 1:")
-    entity1.send()
-    
-    world.send("Entity 2:")
-    entity2.send()
-    
-    var total = entity1.send_return() + entity2.send_return()
-    world.send("Total: " + total)
-}
-```
-
-### Пример 5: Цикл с условиями
+### Пример 3: Цикл с условиями
 
 ```kotlin
 function main() {
@@ -369,6 +374,58 @@ function main() {
 }
 ```
 
+**Результат:**
+```
+1 is odd
+2 is even
+3 is odd
+4 is even
+5 is odd
+```
+
+### Пример 4: Работа с объектами
+
+```kotlin
+function main() {
+    var player = entity(100)
+    var enemy = entity(50)
+    
+    world.send("Status:")
+    world.send("Player HP: " + player.send_return())
+    world.send("Enemy HP: " + enemy.send_return())
+    
+    var total = player.send_return() + enemy.send_return()
+    world.send("Total: " + total)
+}
+```
+
+**Результат:**
+```
+Status:
+Player HP: 100
+Enemy HP: 50
+Total: 150
+```
+
+### Пример 5: Таймер с блоком
+
+```kotlin
+function main() {
+    world.send("Countdown...")
+    
+    world.time(2) {
+        world.send("2 seconds passed!")
+    }
+}
+```
+
+**Результат:**
+```
+Countdown...
+[ждёт 2 секунды]
+2 seconds passed!
+```
+
 ### Пример 6: While цикл
 
 ```kotlin
@@ -376,90 +433,144 @@ function main() {
     var count = 0
     while (count < 3) {
         world.send("Count: " + count)
-        count = count + 1
+        count++
     }
 }
 ```
 
-## Область видимости переменных
+**Результат:**
+```
+Count: 0
+Count: 1
+Count: 2
+```
 
-StoryScript использует лексическую область видимости:
+---
+
+## ⚙️ Автоматическая конвертация типов
+
+При вызове Java методов типы автоматически преобразуются:
 
 ```kotlin
+var e = entity(42)
+world.send(e.send_return())  // Int → String: "42"
+```
+
+| Источник | Цель | Результат |
+|----------|------|-----------|
+| `Int` | `String` | Конвертирует через `toString()` |
+| `String` | `Int` | Парсит как число или `0` |
+| Любой | `Boolean` | `0` → `false`, остальное → `true` |
+
+---
+
+## 🛑 Обработка ошибок
+
+Интерпретатор генерирует ошибки при:
+
+| Ошибка | Пример |
+|--------|--------|
+| Деление на ноль | `10 / 0` → `Division by zero` |
+| Неопределённая переменная | `world.send(x)` (если `x` не определена) |
+| Неправильное количество параметров | `add(5)` (если функция требует 2) |
+| Несуществующий метод | `entity.undefined_method()` |
+
+---
+
+## 📁 Структура проекта
+
+```
+StoryScript/
+├── build/                    # Скомпилированные файлы
+├── gradle/                   # Gradle wrapper
+├── src/
+│   └── main/
+│       └── kotlin/
+│           ├── Main.kt
+│           └── org/example/
+│               ├── lexer/
+│               │   ├── Lexer.kt         # Лексический анализ
+│               │   └── TokenType.kt     # Типы токенов
+│               ├── parser/
+│               │   ├── Parser.kt        # Парсер AST
+│               │   └── ASTNode.kt       # Узлы дерева
+│               ├── interpreter/
+│               │   ├── Interpreter.kt   # Исполнитель
+│               │   ├── Value.kt         # Типы значений
+│               │   ├── Environment.kt   # Окружение
+│               │   ├── Exceptions.kt    # Исключения
+│               │   └── ActiveRunnable.kt# Функциональный интерфейс
+│               └── cs/
+│                   ├── WorldAPI.kt      # Глобальный объект
+│                   └── EntityAPI.kt     # API сущностей
+├── script.st                # Пример скрипта
+├── build.gradle.kts         # Конфигурация Gradle
+├── README.md                # Этот файл
+└── LICENSE                  # GPL v3 лицензия
+```
+
+---
+
+## 🏗️ Как работает интерпретатор
+
+```
+script.st (исходный код)
+    ↓
+[Lexer]     → Лексический анализ → Токены
+    ↓
+[Parser]    → Синтаксический анализ → AST (Abstract Syntax Tree)
+    ↓
+[Interpreter] → Исполнение → Результат
+```
+
+1. **Lexer** — преобразует текст в токены (ключевые слова, операторы, идентификаторы)
+2. **Parser** — строит дерево синтаксиса на основе токенов
+3. **Interpreter** — исполняет дерево и вычисляет результаты
+
+---
+
+## 📝 Комментарии
+
+Поддерживаются два типа комментариев:
+
+```kotlin
+// C-style комментарии
+-- Двойной минус
+
 function main() {
-    var global = "outside"
-    
-    function inner() {
-        var local = "inside"
-        world.send(global)  // Допустимо: видно из outer scope
-        world.send(local)   // Допустимо: определено здесь
-    }
-    
-    inner()
-    // world.send(local)  // Ошибка: local не видна здесь
+    // Это будет проигнорировано
+    world.send("Hello")  // Инлайн комментарий
 }
 ```
 
-## Автоматическая конвертация типов
+---
 
-При вызове Java методов типы автоматически конвертируются:
+## 📋 Лицензия
 
-```kotlin
-var entity = entity(42)
-world.send(entity.send_return())  // Int конвертируется в String
-```
+**GPL v3** — See [LICENSE](LICENSE)
 
-| Исходный тип | Целевой тип | Результат |
-|---|---|---|
-| `Int` | `String` | `toString()` |
-| `String` | `Int` | `toInt()` (или 0 если не число) |
-| Любой | `Boolean` | 0 → false, остальное → true |
+Это означает:
+- ✅ **Используй** — свободное использование
+- ✅ **Изучай** — доступ к исходному коду
+- ✅ **Изменяй** — модифицируй под свои нужды
+- ⚠️ **Распределяй только с исходным кодом** — если распространяешь, включи исходный код
+- ⚠️ **Производные работы под GPL v3** — любые модификации должны быть на GPL v3
 
-## Обработка ошибок
+---
 
-Интерпретатор выбрасывает ошибки при:
-- Делении на ноль
-- Обращении к неопределённой переменной
-- Вызове несуществующего метода
-- Неправильном количестве параметров функции
+## 👨‍💻 Развитие проекта
 
-```kotlin
-var x = 10 / 0  // RuntimeException: Division by zero
-```
+Потенциальные улучшения:
 
-## Структура проекта
+- [ ] Поддержка массивов и объектов
+- [ ] Встроенные функции (len, push, pop и т.д.)
+- [ ] Обработка исключений (try/catch)
+- [ ] Импорт других файлов
+- [ ] Отладчик и REPL
+- [ ] Оптимизация JIT компиляции
 
-```
-src/main/kotlin/
-├── Main.kt                 — точка входа
-├── org/example/
-│   ├── lexer/
-│   │   ├── Lexer.kt       — лексический анализ
-│   │   └── TokenType.kt   — типы токенов
-│   ├── parser/
-│   │   ├── Parser.kt      — парсер AST
-│   │   └── ASTNode.kt     — узлы синтаксического дерева
-│   ├── interpreter/
-│   │   ├── Interpreter.kt — интерпретатор
-│   │   ├── Value.kt       — типы значений
-│   │   ├── Environment.kt — окружение переменных
-│   │   ├── Exceptions.kt  — исключения
-│   │   └── ActiveRunnable.kt — функциональный интерфейс
-│   └── cs/
-│       ├── WorldAPI.kt    — глобальный объект мира
-│       └── EntityAPI.kt   — API для сущностей
-```
+---
 
-## Лицензия
+## 📞 Контакты
 
-GPL v3 — см. файл [LICENSE](LICENSE)
-
-Это значит:
-- ✅ Свободное использование
-- ✅ Свободное изучение
-- ❌ **Распределение только с исходным кодом**
-- ❌ **Модификация требует GPL v3 лицензии на производные**
-
-## Автор
-
-StoryScript Interpreter — язык программирования для создания интерактивных скриптов
+**StoryScript Interpreter** — язык программирования для создания интерактивных скриптов на Kotlin
