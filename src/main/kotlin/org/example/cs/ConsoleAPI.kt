@@ -33,17 +33,18 @@ class ConsoleAPI {
     
     // Вывод без новой строки
     fun print(text: String) {
-        print(text)
+        kotlin.io.print(text)
     }
     
     // Вывод с новой строкой
     fun println(text: String) {
-        println(text)
+        kotlin.io.println(text)
     }
+
     
     // Пустая строка
     fun newLine() {
-        println()
+        kotlin.io.println()
     }
     
     // Повторение строки N раз

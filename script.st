@@ -1,4 +1,6 @@
 function main() {
-    var rand1 = random.random()
-    world.send("Результат: " + rand1)
+    var test = new List()
+    list.add("test1")
+    list.add("test2")
+    world.send(test)
 }
