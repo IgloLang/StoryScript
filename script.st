@@ -1,6 +1,6 @@
 function main() {
-    var test = 0;
-    world.time(6) {
-        world.send("test",test)
+    var counter = 0
+    while (true) {
+        world.send("test")
     }
 }
