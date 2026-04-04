@@ -11,7 +11,7 @@ import ru.scripter.interpreter.BooleanValue
 import ru.scripter.interpreter.ObjectValue
 import ru.scripter.interpreter.NullValue
 
-class MainInit(val scriptPath: String = "script.st") {
+class MainInit(val scriptPath: String) {
     fun run() {
         val scriptFile = File(scriptPath)
         
