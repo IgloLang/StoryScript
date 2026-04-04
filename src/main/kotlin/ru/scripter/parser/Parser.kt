@@ -1,7 +1,7 @@
-package org.example.parser
+package ru.scripter.parser
 
-import org.example.lexer.Token
-import org.example.lexer.TokenType
+import ru.scripter.lexer.Token
+import ru.scripter.lexer.TokenType
 
 // ============== Parser ==============
 // Парсер преобразует список токенов в AST (абстрактное синтаксическое дерево)

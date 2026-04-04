@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 class EntityAPI(test: Int) {
     var name_ai: String = "entity"

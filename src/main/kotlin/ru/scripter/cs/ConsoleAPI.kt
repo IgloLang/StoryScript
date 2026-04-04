@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 class ConsoleAPI {
     // Вывод с цветом (простая реализация ANSI кодов)

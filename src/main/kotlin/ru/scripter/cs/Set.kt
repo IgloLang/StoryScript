@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 class Set {
     private val data = mutableSetOf<Any?>()

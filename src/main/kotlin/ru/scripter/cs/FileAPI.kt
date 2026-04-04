@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 import java.io.File
 

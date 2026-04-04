@@ -1,4 +1,4 @@
-package org.example.lexer
+package ru.scripter.lexer
 
 // Token - представление одного токена в исходном коде
 data class Token(

@@ -1,4 +1,4 @@
-package org.example.interpreter
+package ru.scripter.interpreter
 
 fun interface ActiveRunnable {
     fun run()
@@ -6,17 +6,17 @@ fun interface ActiveRunnable {
 
 // Internal class to wrap script blocks as ActiveRunnable
 class ScriptActiveRunnable(
-    private val block: org.example.interpreter.FunctionValue,
-    private val interpreter: org.example.interpreter.Interpreter,
-    private val closure: org.example.interpreter.Environment
-) : org.example.interpreter.ActiveRunnable {
+    private val block: ru.scripter.interpreter.FunctionValue,
+    private val interpreter: ru.scripter.interpreter.Interpreter,
+    private val closure: ru.scripter.interpreter.Environment
+) : ru.scripter.interpreter.ActiveRunnable {
     override fun run() {
         val previousEnv = interpreter.currentEnv
-        interpreter.currentEnv = _root_ide_package_.org.example.interpreter.Environment(closure)
+        interpreter.currentEnv = _root_ide_package_.ru.scripter.interpreter.Environment(closure)
         
         try {
             interpreter.executeBlock(block.body)
-        } catch (e: org.example.interpreter.ReturnException) {
+        } catch (e: ru.scripter.interpreter.ReturnException) {
             // Catch return from block
         } finally {
             interpreter.currentEnv = previousEnv

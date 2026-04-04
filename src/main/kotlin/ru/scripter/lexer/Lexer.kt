@@ -1,4 +1,4 @@
-package org.example.lexer
+package ru.scripter.lexer
 
 // ============== Lexer ==============
 // Лексер преобразует исходный код в список токенов

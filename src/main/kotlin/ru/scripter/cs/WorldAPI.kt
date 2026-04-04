@@ -1,6 +1,6 @@
-package org.example.cs
+package ru.scripter.cs
 
-import org.example.interpreter.ActiveRunnable
+import ru.scripter.interpreter.ActiveRunnable
 import java.util.concurrent.TimeUnit
 
 class WorldAPI {
@@ -10,7 +10,7 @@ class WorldAPI {
     fun send(name: String, text: String) {
         println("[$name] $text")
     }
-    fun time(timer: Int, runnable: org.example.interpreter.ActiveRunnable) {
+    fun time(timer: Int, runnable: ru.scripter.interpreter.ActiveRunnable) {
         TimeUnit.SECONDS.sleep(timer.toLong())
         runnable.run()
     }

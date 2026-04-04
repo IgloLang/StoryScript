@@ -1,4 +1,4 @@
-package org.example.lexer
+package ru.scripter.lexer
 
 // TokenType Enum - все типы токенов для лексера
 enum class TokenType {

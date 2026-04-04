@@ -1,6 +1,6 @@
-package org.example.interpreter
+package ru.scripter.interpreter
 
-import org.example.parser.BlockStatement
+import ru.scripter.parser.BlockStatement
 
 // ============== Value Representation ==============
 // Базовые значения в интерпретаторе
@@ -34,7 +34,7 @@ object NullValue : Value() {
     override fun toStringValue(): String = "null"
 }
 
-data class FunctionValue(val params: List<String>, val body: BlockStatement, val closure: Environment) : Value() {
+data class FunctionValue(val params: List<String>, val body: BlockStatement, val closure: ru.scripter.interpreter.Environment) : Value() {
     override fun toBoolean(): Boolean = true
     override fun toNumber(): Double = 0.0
     override fun toStringValue(): String = "[Function]"

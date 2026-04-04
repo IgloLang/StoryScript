@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 class Counter {
     private var count = 0

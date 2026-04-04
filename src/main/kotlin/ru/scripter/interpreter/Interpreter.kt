@@ -1,24 +1,24 @@
-package org.example.interpreter
+package ru.scripter.interpreter
 
-import org.example.parser.*
-import org.example.lexer.TokenType
+import ru.scripter.parser.*
+import ru.scripter.lexer.TokenType
 import kotlin.math.floor
 
 // ============== Interpreter ==============
 // Интерпретатор исполняет AST и вычисляет результаты
 class Interpreter {
-    private val globalEnv = _root_ide_package_.org.example.interpreter.Environment()
+    private val globalEnv = _root_ide_package_.ru.scripter.interpreter.Environment()
     internal var currentEnv = globalEnv
     
     fun addGlobalObject(name: String, obj: Any) {
-        globalEnv.define(name, _root_ide_package_.org.example.interpreter.ObjectValue(obj))
+        globalEnv.define(name, _root_ide_package_.ru.scripter.interpreter.ObjectValue(obj))
     }
     
-    fun addGlobalFunction(name: String, function: (List<org.example.interpreter.Value>) -> org.example.interpreter.Value) {
-        globalEnv.define(name, _root_ide_package_.org.example.interpreter.BuiltinFunction(function))
+    fun addGlobalFunction(name: String, function: (List<ru.scripter.interpreter.Value>) -> ru.scripter.interpreter.Value) {
+        globalEnv.define(name, _root_ide_package_.ru.scripter.interpreter.BuiltinFunction(function))
     }
     
-    internal fun executeBlock(block: org.example.parser.BlockStatement) {
+    internal fun executeBlock(block: ru.scripter.parser.BlockStatement) {
         for (stmt in block.statements) {
             try {
                 execute(stmt)
@@ -64,7 +64,7 @@ class Interpreter {
         }
     }
     
-    private fun execute(node: ASTNode): Value {
+    private fun execute(node: ASTNode): ru.scripter.interpreter.Value {
         return when (node) {
             is Program -> {
                 var result: Value = NullValue
@@ -74,20 +74,20 @@ class Interpreter {
                 result
             }
             is VariableDeclaration -> {
-                val value = node.initializer?.let { evaluate(it) } ?: NullValue
+                val value = node.initializer?.let { evaluate(it) } ?: ru.scripter.interpreter.NullValue
                 currentEnv.define(node.name, value)
-                NullValue
+                ru.scripter.interpreter.NullValue
             }
             is FunctionDeclaration -> {
-                val function = FunctionValue(node.params, node.body, currentEnv)
+                val function = ru.scripter.interpreter.FunctionValue(node.params, node.body, currentEnv)
                 currentEnv.define(node.name, function)
-                NullValue
+                ru.scripter.interpreter.NullValue
             }
             is BlockStatement -> {
                 val previousEnv = currentEnv
-                currentEnv = Environment(currentEnv)
+                currentEnv = ru.scripter.interpreter.Environment(currentEnv)
                 
-                var result: Value = NullValue
+                var result: ru.scripter.interpreter.Value = ru.scripter.interpreter.NullValue
                 try {
                     for (stmt in node.statements) {
                         result = execute(stmt)
@@ -105,10 +105,10 @@ class Interpreter {
                 } else if (node.elseBranch != null) {
                     execute(node.elseBranch)
                 }
-                NullValue
+                ru.scripter.interpreter.NullValue
             }
             is WhileStatement -> {
-                var result: Value = NullValue
+                var result: ru.scripter.interpreter.Value = ru.scripter.interpreter.NullValue
                 try {
                     while (evaluate(node.condition).toBoolean()) {
                         try {
@@ -124,9 +124,9 @@ class Interpreter {
             }
             is ForStatement -> {
                 val previousEnv = currentEnv
-                currentEnv = Environment(currentEnv)
+                currentEnv = ru.scripter.interpreter.Environment(currentEnv)
                 
-                var result: Value = NullValue
+                var result: ru.scripter.interpreter.Value = ru.scripter.interpreter.NullValue
                 try {
                     if (node.init != null) {
                         execute(node.init)
@@ -153,7 +153,7 @@ class Interpreter {
             is SwitchStatement -> {
                 val expr = evaluate(node.expr)
                 var matched = false
-                var result: Value = NullValue
+                var result: ru.scripter.interpreter.Value = ru.scripter.interpreter.NullValue
                 
                 try {
                     for (case in node.cases) {
@@ -174,17 +174,17 @@ class Interpreter {
                 result
             }
             is ReturnStatement -> {
-                val value = node.value?.let { evaluate(it) } ?: NullValue
-                throw ReturnException(value)
+                val value = node.value?.let { evaluate(it) } ?: ru.scripter.interpreter.NullValue
+                throw ru.scripter.interpreter.ReturnException(value)
             }
             is BreakStatement -> {
-                throw BreakException()
+                throw ru.scripter.interpreter.BreakException()
             }
-            else -> NullValue
+            else -> ru.scripter.interpreter.NullValue
         }
     }
     
-    private fun evaluate(expr: Expression): Value {
+    private fun evaluate(expr: Expression): ru.scripter.interpreter.Value {
         return when (expr) {
             is NumberLiteral -> NumberValue(expr.value)
             is StringLiteral -> StringValue(expr.value)
@@ -197,12 +197,12 @@ class Interpreter {
             is CallExpression -> evaluateCall(expr)
             is NewExpression -> evaluateNew(expr)
             is MemberExpression -> evaluateMember(expr)
-            is BlockExpression -> FunctionValue(emptyList(), BlockStatement(expr.statements), currentEnv)
-            else -> NullValue
+            is BlockExpression -> ru.scripter.interpreter.FunctionValue(emptyList(), BlockStatement(expr.statements), currentEnv)
+            else -> ru.scripter.interpreter.NullValue
         }
     }
     
-    private fun evaluateBinaryOp(expr: BinaryOp): Value {
+    private fun evaluateBinaryOp(expr: BinaryOp): ru.scripter.interpreter.Value {
         return when (expr.operator) {
             TokenType.ASSIGN -> {
                 val value = evaluate(expr.right)
@@ -219,85 +219,85 @@ class Interpreter {
                 val left = evaluate(expr.left)
                 val right = evaluate(expr.right)
                 
-                if (left is StringValue || right is StringValue) {
-                    StringValue(left.toStringValue() + right.toStringValue())
+                if (left is ru.scripter.interpreter.StringValue || right is ru.scripter.interpreter.StringValue) {
+                    ru.scripter.interpreter.StringValue(left.toStringValue() + right.toStringValue())
                 } else {
-                    NumberValue(left.toNumber() + right.toNumber())
+                    ru.scripter.interpreter.NumberValue(left.toNumber() + right.toNumber())
                 }
             }
-            TokenType.MINUS -> NumberValue(evaluate(expr.left).toNumber() - evaluate(expr.right).toNumber())
-            TokenType.STAR -> NumberValue(evaluate(expr.left).toNumber() * evaluate(expr.right).toNumber())
+            TokenType.MINUS -> ru.scripter.interpreter.NumberValue(evaluate(expr.left).toNumber() - evaluate(expr.right).toNumber())
+            TokenType.STAR -> ru.scripter.interpreter.NumberValue(evaluate(expr.left).toNumber() * evaluate(expr.right).toNumber())
             TokenType.SLASH -> {
                 val right = evaluate(expr.right).toNumber()
                 if (right == 0.0) throw RuntimeException("Division by zero")
-                NumberValue(evaluate(expr.left).toNumber() / right)
+                ru.scripter.interpreter.NumberValue(evaluate(expr.left).toNumber() / right)
             }
             TokenType.DOUBLE_SLASH -> {
                 val right = evaluate(expr.right).toNumber()
                 if (right == 0.0) throw RuntimeException("Division by zero")
-                NumberValue(floor(evaluate(expr.left).toNumber() / right))
+                ru.scripter.interpreter.NumberValue(floor(evaluate(expr.left).toNumber() / right))
             }
             TokenType.POWER -> {
                 val base = evaluate(expr.left).toNumber()
                 val exp = evaluate(expr.right).toNumber()
-                NumberValue(Math.pow(base, exp))
+                ru.scripter.interpreter.NumberValue(Math.pow(base, exp))
             }
             TokenType.PERCENT -> {
                 val right = evaluate(expr.right).toNumber()
                 if (right == 0.0) throw RuntimeException("Division by zero")
-                NumberValue(evaluate(expr.left).toNumber() % right)
+                ru.scripter.interpreter.NumberValue(evaluate(expr.left).toNumber() % right)
             }
             TokenType.EQUAL -> {
                 val left = evaluate(expr.left)
                 val right = evaluate(expr.right)
-                BooleanValue(compare(left, right, false))
+                ru.scripter.interpreter.BooleanValue(compare(left, right, false))
             }
             TokenType.NOT_EQUAL -> {
                 val left = evaluate(expr.left)
                 val right = evaluate(expr.right)
-                BooleanValue(!compare(left, right, false))
+                ru.scripter.interpreter.BooleanValue(!compare(left, right, false))
             }
             TokenType.STRICT_EQUAL -> {
                 val left = evaluate(expr.left)
                 val right = evaluate(expr.right)
-                BooleanValue(compare(left, right, true))
+                ru.scripter.interpreter.BooleanValue(compare(left, right, true))
             }
             TokenType.NOT_STRICT_EQUAL -> {
                 val left = evaluate(expr.left)
                 val right = evaluate(expr.right)
-                BooleanValue(!compare(left, right, true))
+                ru.scripter.interpreter.BooleanValue(!compare(left, right, true))
             }
-            TokenType.LESS_THAN -> BooleanValue(evaluate(expr.left).toNumber() < evaluate(expr.right).toNumber())
-            TokenType.LESS_EQUAL -> BooleanValue(evaluate(expr.left).toNumber() <= evaluate(expr.right).toNumber())
-            TokenType.GREATER_THAN -> BooleanValue(evaluate(expr.left).toNumber() > evaluate(expr.right).toNumber())
-            TokenType.GREATER_EQUAL -> BooleanValue(evaluate(expr.left).toNumber() >= evaluate(expr.right).toNumber())
+            TokenType.LESS_THAN -> ru.scripter.interpreter.BooleanValue(evaluate(expr.left).toNumber() < evaluate(expr.right).toNumber())
+            TokenType.LESS_EQUAL -> ru.scripter.interpreter.BooleanValue(evaluate(expr.left).toNumber() <= evaluate(expr.right).toNumber())
+            TokenType.GREATER_THAN -> ru.scripter.interpreter.BooleanValue(evaluate(expr.left).toNumber() > evaluate(expr.right).toNumber())
+            TokenType.GREATER_EQUAL -> ru.scripter.interpreter.BooleanValue(evaluate(expr.left).toNumber() >= evaluate(expr.right).toNumber())
             TokenType.AND -> {
                 val left = evaluate(expr.left)
-                if (!left.toBoolean()) return BooleanValue(false)
+                if (!left.toBoolean()) return ru.scripter.interpreter.BooleanValue(false)
                 val right = evaluate(expr.right)
-                BooleanValue(right.toBoolean())
+                ru.scripter.interpreter.BooleanValue(right.toBoolean())
             }
             TokenType.OR -> {
                 val left = evaluate(expr.left)
-                if (left.toBoolean()) return BooleanValue(true)
+                if (left.toBoolean()) return ru.scripter.interpreter.BooleanValue(true)
                 val right = evaluate(expr.right)
-                BooleanValue(right.toBoolean())
+                ru.scripter.interpreter.BooleanValue(right.toBoolean())
             }
-            else -> NullValue
+            else -> ru.scripter.interpreter.NullValue
         }
     }
     
-    private fun evaluateUnaryOp(expr: UnaryOp): Value {
+    private fun evaluateUnaryOp(expr: UnaryOp): ru.scripter.interpreter.Value {
         return when (expr.operator) {
-            TokenType.MINUS -> NumberValue(-evaluate(expr.operand).toNumber())
-            TokenType.PLUS -> NumberValue(evaluate(expr.operand).toNumber())
-            TokenType.NOT -> BooleanValue(!evaluate(expr.operand).toBoolean())
+            TokenType.MINUS -> ru.scripter.interpreter.NumberValue(-evaluate(expr.operand).toNumber())
+            TokenType.PLUS -> ru.scripter.interpreter.NumberValue(evaluate(expr.operand).toNumber())
+            TokenType.NOT -> ru.scripter.interpreter.BooleanValue(!evaluate(expr.operand).toBoolean())
             TokenType.INCREMENT -> {
                 if (expr.operand is Identifier) {
                     val value = currentEnv.get(expr.operand.name).toNumber() + 1
-                    val result = NumberValue(value)
+                    val result = ru.scripter.interpreter.NumberValue(value)
                     currentEnv.set(expr.operand.name, result)
-                    if (expr.isPostfix) NumberValue(value - 1) else result
+                    if (expr.isPostfix) ru.scripter.interpreter.NumberValue(value - 1) else result
                 } else {
                     throw RuntimeException("Invalid increment target")
                 }
@@ -305,18 +305,18 @@ class Interpreter {
             TokenType.DECREMENT -> {
                 if (expr.operand is Identifier) {
                     val value = currentEnv.get(expr.operand.name).toNumber() - 1
-                    val result = NumberValue(value)
+                    val result = ru.scripter.interpreter.NumberValue(value)
                     currentEnv.set(expr.operand.name, result)
-                    if (expr.isPostfix) NumberValue(value + 1) else result
+                    if (expr.isPostfix) ru.scripter.interpreter.NumberValue(value + 1) else result
                 } else {
                     throw RuntimeException("Invalid decrement target")
                 }
             }
-            else -> NullValue
+            else -> ru.scripter.interpreter.NullValue
         }
     }
     
-    private fun evaluateTernaryOp(expr: TernaryOp): Value {
+    private fun evaluateTernaryOp(expr: TernaryOp): ru.scripter.interpreter.Value {
         val condition = evaluate(expr.condition)
         return if (condition.toBoolean()) {
             evaluate(expr.thenExpr)
@@ -325,7 +325,7 @@ class Interpreter {
         }
     }
     
-    private fun evaluateAssignmentOp(expr: AssignmentOp): Value {
+    private fun evaluateAssignmentOp(expr: AssignmentOp): ru.scripter.interpreter.Value {
         val value = evaluate(expr.value)
         
         if (expr.target is Identifier) {
@@ -335,29 +335,29 @@ class Interpreter {
                 TokenType.ASSIGN -> value
                 TokenType.PLUS_ASSIGN -> {
                     val current = currentEnv.get(targetName).toNumber()
-                    NumberValue(current + value.toNumber())
+                    ru.scripter.interpreter.NumberValue(current + value.toNumber())
                 }
                 TokenType.MINUS_ASSIGN -> {
                     val current = currentEnv.get(targetName).toNumber()
-                    NumberValue(current - value.toNumber())
+                    ru.scripter.interpreter.NumberValue(current - value.toNumber())
                 }
                 TokenType.STAR_ASSIGN -> {
                     val current = currentEnv.get(targetName).toNumber()
-                    NumberValue(current * value.toNumber())
+                    ru.scripter.interpreter.NumberValue(current * value.toNumber())
                 }
                 TokenType.SLASH_ASSIGN -> {
                     val current = currentEnv.get(targetName).toNumber()
                     val divisor = value.toNumber()
                     if (divisor == 0.0) throw RuntimeException("Division by zero")
-                    NumberValue(current / divisor)
+                    ru.scripter.interpreter.NumberValue(current / divisor)
                 }
                 TokenType.PERCENT_ASSIGN -> {
                     val current = currentEnv.get(targetName).toNumber()
-                    NumberValue(current % value.toNumber())
+                    ru.scripter.interpreter.NumberValue(current % value.toNumber())
                 }
                 TokenType.POWER_ASSIGN -> {
                     val current = currentEnv.get(targetName).toNumber()
-                    NumberValue(Math.pow(current, value.toNumber()))
+                    ru.scripter.interpreter.NumberValue(Math.pow(current, value.toNumber()))
                 }
                 else -> value
             }
@@ -373,34 +373,34 @@ class Interpreter {
             val obj = evaluate(expr.target.object_)
             val propertyName = expr.target.property
             
-            if (obj is ObjectValue) {
+            if (obj is ru.scripter.interpreter.ObjectValue) {
                 val finalValue = when (expr.operator) {
                     TokenType.ASSIGN -> value
                     TokenType.PLUS_ASSIGN -> {
                         val current = getObjectProperty(obj.obj, propertyName).toNumber()
-                        NumberValue(current + value.toNumber())
+                        ru.scripter.interpreter.NumberValue(current + value.toNumber())
                     }
                     TokenType.MINUS_ASSIGN -> {
                         val current = getObjectProperty(obj.obj, propertyName).toNumber()
-                        NumberValue(current - value.toNumber())
+                        ru.scripter.interpreter.NumberValue(current - value.toNumber())
                     }
                     TokenType.STAR_ASSIGN -> {
                         val current = getObjectProperty(obj.obj, propertyName).toNumber()
-                        NumberValue(current * value.toNumber())
+                        ru.scripter.interpreter.NumberValue(current * value.toNumber())
                     }
                     TokenType.SLASH_ASSIGN -> {
                         val current = getObjectProperty(obj.obj, propertyName).toNumber()
                         val divisor = value.toNumber()
                         if (divisor == 0.0) throw RuntimeException("Division by zero")
-                        NumberValue(current / divisor)
+                        ru.scripter.interpreter.NumberValue(current / divisor)
                     }
                     TokenType.PERCENT_ASSIGN -> {
                         val current = getObjectProperty(obj.obj, propertyName).toNumber()
-                        NumberValue(current % value.toNumber())
+                        ru.scripter.interpreter.NumberValue(current % value.toNumber())
                     }
                     TokenType.POWER_ASSIGN -> {
                         val current = getObjectProperty(obj.obj, propertyName).toNumber()
-                        NumberValue(Math.pow(current, value.toNumber()))
+                        ru.scripter.interpreter.NumberValue(Math.pow(current, value.toNumber()))
                     }
                     else -> value
                 }
@@ -411,31 +411,31 @@ class Interpreter {
         throw RuntimeException("Invalid assignment target")
     }
     
-    private fun getObjectProperty(obj: Any, propertyName: String): Value {
+    private fun getObjectProperty(obj: Any, propertyName: String): ru.scripter.interpreter.Value {
         return try {
             val field = obj::class.java.getDeclaredField(propertyName)
             field.isAccessible = true
             val fieldValue = field.get(obj)
             when (fieldValue) {
-                is Number -> NumberValue(fieldValue.toDouble())
-                is String -> StringValue(fieldValue)
-                is Boolean -> BooleanValue(fieldValue)
-                null -> NullValue
-                else -> ObjectValue(fieldValue)
+                is Number -> ru.scripter.interpreter.NumberValue(fieldValue.toDouble())
+                is String -> ru.scripter.interpreter.StringValue(fieldValue)
+                is Boolean -> ru.scripter.interpreter.BooleanValue(fieldValue)
+                null -> ru.scripter.interpreter.NullValue
+                else -> ru.scripter.interpreter.ObjectValue(fieldValue)
             }
         } catch (e: Exception) {
-            NullValue
+            ru.scripter.interpreter.NullValue
         }
     }
     
-    private fun setObjectProperty(obj: Any, propertyName: String, value: Value): Value {
+    private fun setObjectProperty(obj: Any, propertyName: String, value: ru.scripter.interpreter.Value): ru.scripter.interpreter.Value {
         return try {
             val field = obj::class.java.getDeclaredField(propertyName)
             field.isAccessible = true
             val javaValue = when (value) {
-                is NumberValue -> value.value
-                is StringValue -> value.value
-                is BooleanValue -> value.value
+                is ru.scripter.interpreter.NumberValue -> value.value
+                is ru.scripter.interpreter.StringValue -> value.value
+                is ru.scripter.interpreter.BooleanValue -> value.value
                 else -> null
             }
             field.set(obj, javaValue)
@@ -445,14 +445,14 @@ class Interpreter {
         }
     }
     
-    private fun evaluateCall(expr: CallExpression): Value {
+    private fun evaluateCall(expr: CallExpression): ru.scripter.interpreter.Value {
         if (expr.callee is MemberExpression) {
             val obj = evaluate(expr.callee.object_)
             val methodName = expr.callee.property
             
-            if (obj is ObjectValue) {
+            if (obj is ru.scripter.interpreter.ObjectValue) {
                 val args = expr.args.map { evaluate(it) }
-                val block = expr.trailingBlock?.let { evaluate(it) as? FunctionValue }
+                val block = expr.trailingBlock?.let { evaluate(it) as? ru.scripter.interpreter.FunctionValue }
                 return callJavaMethod(obj.obj, methodName, args, block)
             }
         }
@@ -460,12 +460,12 @@ class Interpreter {
         val function = evaluate(expr.callee)
         
         // Handle builtin functions
-        if (function is BuiltinFunction) {
+        if (function is ru.scripter.interpreter.BuiltinFunction) {
             val args = expr.args.map { evaluate(it) }
             return function.function(args)
         }
         
-        if (function !is FunctionValue) {
+        if (function !is ru.scripter.interpreter.FunctionValue) {
             throw RuntimeException("Not a function: ${expr.callee}")
         }
         
@@ -474,7 +474,7 @@ class Interpreter {
         }
         
         val previousEnv = currentEnv
-        currentEnv = Environment(function.closure)
+        currentEnv = ru.scripter.interpreter.Environment(function.closure)
         
         try {
             for ((param, arg) in function.params.zip(expr.args)) {
@@ -484,8 +484,8 @@ class Interpreter {
             
             try {
                 execute(function.body)
-                return NullValue
-            } catch (e: ReturnException) {
+                return ru.scripter.interpreter.NullValue
+            } catch (e: ru.scripter.interpreter.ReturnException) {
                 return e.value
             }
         } finally {
@@ -493,65 +493,65 @@ class Interpreter {
         }
     }
     
-    private fun evaluateNew(expr: NewExpression): Value {
+    private fun evaluateNew(expr: NewExpression): ru.scripter.interpreter.Value {
         return when (expr.className) {
             "List" -> {
-                ObjectValue(org.example.cs.ListAPI())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.ListAPI())
             }
             "Map" -> {
-                ObjectValue(org.example.cs.Map())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.Map())
             }
             "Set" -> {
-                ObjectValue(org.example.cs.Set())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.Set())
             }
             "Stack" -> {
-                ObjectValue(org.example.cs.Stack())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.Stack())
             }
             "Queue" -> {
-                ObjectValue(org.example.cs.Queue())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.Queue())
             }
             "StringBuilder" -> {
-                ObjectValue(org.example.cs.StringBuilder())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.StringBuilder())
             }
             "Counter" -> {
-                ObjectValue(org.example.cs.Counter())
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.Counter())
             }
             "Pair" -> {
                 val first = if (expr.args.isNotEmpty()) evaluate(expr.args[0]) else null
                 val second = if (expr.args.size > 1) evaluate(expr.args[1]) else null
                 val firstVal = when (first) {
-                    is StringValue -> first.value
-                    is NumberValue -> first.value
-                    is BooleanValue -> first.value
+                    is ru.scripter.interpreter.StringValue -> first.value
+                    is ru.scripter.interpreter.NumberValue -> first.value
+                    is ru.scripter.interpreter.BooleanValue -> first.value
                     else -> first?.toString()
                 }
                 val secondVal = when (second) {
-                    is StringValue -> second.value
-                    is NumberValue -> second.value
-                    is BooleanValue -> second.value
+                    is ru.scripter.interpreter.StringValue -> second.value
+                    is ru.scripter.interpreter.NumberValue -> second.value
+                    is ru.scripter.interpreter.BooleanValue -> second.value
                     else -> second?.toString()
                 }
-                ObjectValue(org.example.cs.Pair(firstVal, secondVal))
+                ru.scripter.interpreter.ObjectValue(ru.scripter.cs.Pair(firstVal, secondVal))
             }
             else -> throw RuntimeException("Unknown class: ${expr.className}")
         }
     }
     
-    private fun callJavaMethod(obj: Any, methodName: String, args: List<Value>, block: FunctionValue? = null): Value {
+    private fun callJavaMethod(obj: Any, methodName: String, args: List<ru.scripter.interpreter.Value>, block: ru.scripter.interpreter.FunctionValue? = null): ru.scripter.interpreter.Value {
         // Build parameter types based on values and block
         val paramTypes = mutableListOf<Class<*>>()
         for (arg in args) {
             paramTypes.add(when (arg) {
-                is NumberValue -> Int::class.java
-                is StringValue -> String::class.java
-                is BooleanValue -> Boolean::class.java
+                is ru.scripter.interpreter.NumberValue -> Int::class.java
+                is ru.scripter.interpreter.StringValue -> String::class.java
+                is ru.scripter.interpreter.BooleanValue -> Boolean::class.java
                 else -> String::class.java
             })
         }
         
         // Add ActiveRunnable type if there's a block
         if (block != null) {
-            paramTypes.add(org.example.interpreter.ActiveRunnable::class.java)
+            paramTypes.add(ru.scripter.interpreter.ActiveRunnable::class.java)
         }
         
         // Find all methods with the given name (public methods)
@@ -594,11 +594,11 @@ class Interpreter {
                 val arg = args[i]
                 val paramType = paramTypes[i]
                 when {
-                    paramType == String::class.java && arg is StringValue -> score += 100
-                    paramType == Int::class.java && arg is NumberValue -> score += 100
-                    paramType == Boolean::class.java && arg is BooleanValue -> score += 100
+                    paramType == String::class.java && arg is ru.scripter.interpreter.StringValue -> score += 100
+                    paramType == Int::class.java && arg is ru.scripter.interpreter.NumberValue -> score += 100
+                    paramType == Boolean::class.java && arg is ru.scripter.interpreter.BooleanValue -> score += 100
                     paramType == Any::class.java -> score += 50 // Generic Object match
-                    paramType.isAssignableFrom(String::class.java) && arg is StringValue -> score += 75
+                    paramType.isAssignableFrom(String::class.java) && arg is ru.scripter.interpreter.StringValue -> score += 75
                     else -> score += 0
                 }
             }
@@ -622,16 +622,16 @@ class Interpreter {
             methodArgs.add(when {
                 targetType == String::class.java -> {
                     when (arg) {
-                        is NumberValue -> arg.value.toInt().toString()
-                        is StringValue -> arg.value
-                        is BooleanValue -> arg.value.toString()
+                        is ru.scripter.interpreter.NumberValue -> arg.value.toInt().toString()
+                        is ru.scripter.interpreter.StringValue -> arg.value
+                        is ru.scripter.interpreter.BooleanValue -> arg.value.toString()
                         else -> arg.toStringValue()
                     }
                 }
                 targetType == Int::class.java -> {
                     when (arg) {
-                        is NumberValue -> arg.value.toInt()
-                        is StringValue -> arg.value.toIntOrNull() ?: 0
+                        is ru.scripter.interpreter.NumberValue -> arg.value.toInt()
+                        is ru.scripter.interpreter.StringValue -> arg.value.toIntOrNull() ?: 0
                         else -> arg.toNumber().toInt()
                     }
                 }
@@ -641,17 +641,17 @@ class Interpreter {
                 targetType == Object::class.java -> {
                     // For Object type (Any?), pass the appropriate value
                     when (arg) {
-                        is NumberValue -> arg.value.toInt()
-                        is StringValue -> arg.value
-                        is BooleanValue -> arg.value
+                        is ru.scripter.interpreter.NumberValue -> arg.value.toInt()
+                        is ru.scripter.interpreter.StringValue -> arg.value
+                        is ru.scripter.interpreter.BooleanValue -> arg.value
                         else -> arg.toStringValue()
                     }
                 }
                 else -> {
                     when (arg) {
-                        is NumberValue -> arg.value.toInt()
-                        is StringValue -> arg.value
-                        is BooleanValue -> arg.value
+                        is ru.scripter.interpreter.NumberValue -> arg.value.toInt()
+                        is ru.scripter.interpreter.StringValue -> arg.value
+                        is ru.scripter.interpreter.BooleanValue -> arg.value
                         else -> arg.toStringValue()
                     }
                 }
@@ -667,29 +667,29 @@ class Interpreter {
         
         val result = method.invoke(obj, *methodArgs.toTypedArray())
         return when (result) {
-            is String -> StringValue(result)
-            is Number -> NumberValue(result.toDouble())
-            is Boolean -> BooleanValue(result)
-            null -> NullValue
-            else -> ObjectValue(result)
+            is String -> ru.scripter.interpreter.StringValue(result)
+            is Number -> ru.scripter.interpreter.NumberValue(result.toDouble())
+            is Boolean -> ru.scripter.interpreter.BooleanValue(result)
+            null -> ru.scripter.interpreter.NullValue
+            else -> ru.scripter.interpreter.ObjectValue(result)
         }
     }
     
-    private fun evaluateMember(expr: MemberExpression): Value {
+    private fun evaluateMember(expr: MemberExpression): ru.scripter.interpreter.Value {
         val obj = evaluate(expr.object_)
         
-        if (obj is ObjectValue) {
+        if (obj is ru.scripter.interpreter.ObjectValue) {
             // Try to access as Kotlin property (getter method)
             val getterMethodName = "get${expr.property.replaceFirstChar { it.uppercase() }}"
             try {
                 val getter = obj.obj::class.java.getMethod(getterMethodName)
                 val value = getter.invoke(obj.obj)
                 return when (value) {
-                    is String -> StringValue(value)
-                    is Number -> NumberValue(value.toDouble())
-                    is Boolean -> BooleanValue(value)
-                    null -> NullValue
-                    else -> ObjectValue(value)
+                    is String -> ru.scripter.interpreter.StringValue(value)
+                    is Number -> ru.scripter.interpreter.NumberValue(value.toDouble())
+                    is Boolean -> ru.scripter.interpreter.BooleanValue(value)
+                    null -> ru.scripter.interpreter.NullValue
+                    else -> ru.scripter.interpreter.ObjectValue(value)
                 }
             } catch (e: NoSuchMethodException) {
                 // Not a getter, try as property
@@ -700,36 +700,36 @@ class Interpreter {
                 val field = obj.obj::class.java.getField(expr.property)
                 val value = field.get(obj.obj)
                 when (value) {
-                    is String -> StringValue(value)
-                    is Number -> NumberValue(value.toDouble())
-                    is Boolean -> BooleanValue(value)
-                    null -> NullValue
-                    else -> ObjectValue(value)
+                    is String -> ru.scripter.interpreter.StringValue(value)
+                    is Number -> ru.scripter.interpreter.NumberValue(value.toDouble())
+                    is Boolean -> ru.scripter.interpreter.BooleanValue(value)
+                    null -> ru.scripter.interpreter.NullValue
+                    else -> ru.scripter.interpreter.ObjectValue(value)
                 }
             } catch (e: NoSuchFieldException) {
-                NullValue
+                ru.scripter.interpreter.NullValue
             }
         }
         
-        return NullValue
+        return ru.scripter.interpreter.NullValue
     }
     
-    private fun compare(left: Value, right: Value, strict: Boolean): Boolean {
+    private fun compare(left: ru.scripter.interpreter.Value, right: ru.scripter.interpreter.Value, strict: Boolean): Boolean {
         if (strict) {
             return when {
-                left is NumberValue && right is NumberValue -> left.value == right.value
-                left is StringValue && right is StringValue -> left.value == right.value
-                left is BooleanValue && right is BooleanValue -> left.value == right.value
-                left is NullValue && right is NullValue -> true
+                left is ru.scripter.interpreter.NumberValue && right is ru.scripter.interpreter.NumberValue -> left.value == right.value
+                left is ru.scripter.interpreter.StringValue && right is ru.scripter.interpreter.StringValue -> left.value == right.value
+                left is ru.scripter.interpreter.BooleanValue && right is ru.scripter.interpreter.BooleanValue -> left.value == right.value
+                left is ru.scripter.interpreter.NullValue && right is ru.scripter.interpreter.NullValue -> true
                 else -> false
             }
         } else {
             // Loose comparison
             return when {
-                left is NumberValue && right is NumberValue -> left.value == right.value
-                left is StringValue && right is StringValue -> left.value == right.value
-                left is BooleanValue && right is BooleanValue -> left.value == right.value
-                left is NullValue && right is NullValue -> true
+                left is ru.scripter.interpreter.NumberValue && right is ru.scripter.interpreter.NumberValue -> left.value == right.value
+                left is ru.scripter.interpreter.StringValue && right is ru.scripter.interpreter.StringValue -> left.value == right.value
+                left is ru.scripter.interpreter.BooleanValue && right is ru.scripter.interpreter.BooleanValue -> left.value == right.value
+                left is ru.scripter.interpreter.NullValue && right is ru.scripter.interpreter.NullValue -> true
                 else -> left.toNumber() == right.toNumber()
             }
         }

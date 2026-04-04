@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 class StringBuilder {
     private val buffer = mutableListOf<String>()

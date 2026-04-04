@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.3.10"
 }
 
-group = "org.example"
+group = "ru.scripter"
 version = "1.0-SNAPSHOT"
 
 repositories {

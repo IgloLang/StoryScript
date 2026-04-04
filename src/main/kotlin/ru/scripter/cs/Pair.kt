@@ -1,4 +1,4 @@
-package org.example.cs
+package ru.scripter.cs
 
 class Pair(var first: Any? = null, var second: Any? = null) {
     

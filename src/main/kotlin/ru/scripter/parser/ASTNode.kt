@@ -1,6 +1,6 @@
-package org.example.parser
+package ru.scripter.parser
 
-import org.example.lexer.TokenType
+import ru.scripter.lexer.TokenType
 
 // ============== AST Node Classes ==============
 // Базовый класс для всех узлов AST
