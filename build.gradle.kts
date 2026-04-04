@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("com.github.IgloLang:StoryScript:622a4e0c2a")
+    implementation("com.github.IgloLang:StoryScript:76b05d6b12")
 }
 
 kotlin {
@@ -21,4 +21,12 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes("Main-Class" to "ru.scripter.MainKt")
+    }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
