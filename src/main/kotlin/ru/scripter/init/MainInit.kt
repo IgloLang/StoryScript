@@ -10,8 +10,21 @@ import ru.scripter.interpreter.StringValue
 import ru.scripter.interpreter.BooleanValue
 import ru.scripter.interpreter.ObjectValue
 import ru.scripter.interpreter.NullValue
-
 class MainInit(val scriptPath: String) {
+
+    var InitString : String = "noInit"
+
+    public fun init() {
+        try {
+            val source = scriptPath
+            val lexer = Lexer(source)
+            val tokens = lexer.tokenize()
+            val parser = Parser(tokens)
+            InitString = "init"
+        } catch (e : Exception) {
+            println(e.message)
+        }
+    }
     fun run() {
         val scriptFile = File(scriptPath)
         
@@ -27,11 +40,12 @@ class MainInit(val scriptPath: String) {
             val parser = Parser(tokens)
             val program = parser.parse()
             val interpreter = Interpreter()
-            
-            setupGlobalObjects(interpreter)
-            setupGlobalFunctions(interpreter)
-            
-            interpreter.interpret(program)
+            if (InitString == "init") {
+                setupGlobalObjects(interpreter)
+                setupGlobalFunctions(interpreter)
+
+                interpreter.interpret(program)
+            }
         } catch (e: Exception) {
             println("Error: ${e.message}")
             e.printStackTrace()

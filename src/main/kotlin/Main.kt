@@ -6,6 +6,8 @@ fun main(args: Array<String>) {
     } else {
         "script.st"  // Default script file
     }
-    
-    MainInit(scriptPath).run()
+
+    val mainInit = MainInit(scriptPath)
+    mainInit.init()
+    mainInit.run()
 }
